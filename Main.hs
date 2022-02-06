@@ -5,27 +5,20 @@ import Data.Char
 import Data.List
 
 seed = 2022
-
-screenLen :: Int
 screenLen = 80
-
 
 main :: IO ()
 main = do
-  let strLineLen = screenLen `div` 2
-
-  let chars = randChars $ mkStdGen seed
-  let pureLines = chunkIntoString strLineLen chars
-  let empties = take strLineLen $ repeat ' '
-  let biState = cycle [True,False]
-  let hexLines = map (\(xs,skew) -> interleaveSkewed xs empties skew) $ zip pureLines biState
-  mapM_ putStrLn $ hexLines
+  let maxCols = screenLen `div` 2
+  let charStream = randChars $ mkStdGen seed
+  let rowStream = chunkIntoString maxCols charStream
+  mapM_ putStrLn $ hexedRows maxCols rowStream
 
 -- recursive generator
 randChars :: StdGen -> [Char]
 randChars g =
-  let (n,g') = randomR ('a','Æ') g
-  in n : randChars g'
+  let (c, g') = randomR ('A','L') g
+  in c : randChars g'
 
 chunkIntoString :: Int -> [Char] -> [String]
 chunkIntoString lineW cs =
@@ -33,9 +26,15 @@ chunkIntoString lineW cs =
   in line ++ chunkIntoString lineW (drop lineW cs_)
   where cs_ = filter isPrint cs
 
-interleaveSkewed :: [a] -> [a] -> Bool -> [a]
-interleaveSkewed x y True = interleaveLists [x, y]
-interleaveSkewed x y False = interleaveLists [y, x]
+-- shew with "holes"
+hexedRows :: Int -> [String] -> [String]
+hexedRows maxCols rows =
+  let holes = take maxCols $ repeat ' '
+      bipolarRows = zip rows $ cycle [True,False]
+  in map (\(row,skew) -> interleaveSkewed row holes skew) bipolarRows
+  where
+    interleaveSkewed x y True = interleaveLists [x, y]
+    interleaveSkewed x y False = interleaveLists [y, x]
 
 interleaveLists :: [[a]] -> [a]
 interleaveLists = concat . transpose
