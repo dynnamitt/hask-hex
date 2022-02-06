@@ -1,16 +1,26 @@
 module Main where
 
 import System.Random
+import Data.Char
+
+seed = 2022
+
 
 
 main :: IO ()
 main = do
-  gen' <- getStdGen
-  let widths = randInts gen' $ 5 - 1
-  putStrLn $ "w :" ++ show widths
 
--- lazy , recursive
-randInts :: StdGen -> Int -> [Int]
-randInts g maxInt = 
-  let (n,g') = randomR (0,maxInt) g
-  in n : randInts g' maxInt
+  let cs = randChars $ mkStdGen seed
+  mapM_ putStrLn $ newLines 40 cs
+
+-- recursive generator
+randChars :: StdGen -> [Char]
+randChars g =
+  let (n,g') = randomR ('a','Æ') g
+  in n : randChars g'
+
+
+newLines :: Int -> [Char] -> [String]
+newLines lineW cs =
+  let line = [take lineW cs]
+  in line ++ newLines lineW (drop lineW cs)
