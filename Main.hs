@@ -1,6 +1,7 @@
 module Main where
 
-import System.Random (mkStdGen, StdGen, randomR)
+-- test ::: import Characters
+import System.Random (mkStdGen, StdGen, getStdGen, randomR)
 import Data.Char
 import Data.List (zip, transpose)
 import Data.Sequence (mapWithIndex)
@@ -24,17 +25,47 @@ data HexCell = HexCell {
   hexcode::Hexcode
 } deriving (Show)
 
-data Influencer = A HexCell
-                | B HexCell
+data Influencer = AboveA HexCell
+                | AboveB HexCell
                 | Side HexCell
-                | NoInflux
+                | NoInflu
                 deriving (Show)
 
--- hexedCellRow Nothing currRow =
---   currRow':hexedCellRow
---   where
---     currRow' = mapWithIndex (\pos c -> HexCell NoInflux 0 pos c) currRow
---     fn' itm acc = acc ++ [itm] -- place back into same order
+-- map :: (a -> b) -> [a] -> [b]
+-- map _ [] = []
+-- map f (x:xs) = f x : map f xs
+
+hexedCellRow :: Maybe [Char] -> [Char] -> [HexCell]
+hexedCellRow aboveRow currRow =
+    [HexCell NoInflu 0 p c | c <- currRow,
+                             p <- [0..currLen]]
+    where
+      currLen = length currRow
+
+takeInflu :: StdGen -> Maybe [HexCell] -> Maybe HexCell -> (Influencer,StdGen)
+takeInflu g Nothing Nothing = (NoInflu, g)
+takeInflu g Nothing (Just prevCell)
+    | outcome <= 70 = (Side prevCell, g')
+    | otherwise = (NoInflu, g')
+    where
+      (outcome, g' ) = randomR (1::Int, 100) g
+takeInflu g (Just aboveRow) Nothing
+    | outcome == 1 = (AboveA aboveA, g')
+    | outcome == 2 = (AboveB aboveB, g')
+    | otherwise = (NoInflu, g')
+    where
+      (outcome, g' ) = randomR (1::Int, 3) g
+      aboveA = aboveRow !! 1 -- ? This is a Maybe also !!!!!!!!!
+      aboveB = aboveRow !! 2
+takeInflu g (Just aboveRow) (Just prevCell)
+    | outcome == 1 = (Side prevCell, g')
+    | outcome == 2 = (AboveA aboveA, g')
+    | outcome == 3 = (AboveB aboveB, g')
+    | otherwise = (NoInflu, g')
+    where
+      (outcome, g' ) = randomR (1::Int, 4) g
+      aboveA = aboveRow !! ((xPos prevCell) + 1 )
+      aboveB = aboveRow !! ((xPos prevCell) + 2 )
 
 -- recursive generator
 randHexcodes :: StdGen -> [Hexcode]
