@@ -1,5 +1,9 @@
 module Influence where
 
+
+import System.Random (mkStdGen, StdGen, getStdGen, randomR)
+
+
 {-
     A B
    S * ?
