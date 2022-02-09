@@ -20,7 +20,7 @@ extra-source-files:  CHANGELOG.md
 
 library
   exposed-modules:     Colors
-                       --Influence
+                       Influence
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.13 && <4.14,
