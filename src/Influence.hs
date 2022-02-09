@@ -1,4 +1,9 @@
-module Influence where
+module Influence (Hexcode,HexCell,Influencer,takeInflu,firstCell) where
+
+
+import System.Random (mkStdGen, StdGen, getStdGen, randomR)
+
+type Hexcode = Int
 
 {-
     A B
@@ -24,7 +29,7 @@ data Influencer a = AboveA a
 -- map f (x:xs) = f x : map f xs
 firstCell = HexCell NoInflu 0 0
 
-hexedCellRow :: StdGen -> Maybe [HexCell] -> [Char] -> [HexCell]
+hexedCellRow :: StdGen -> Maybe [HexCell] -> [Hexcode] -> [HexCell]
 hexedCellRow g Nothing currRow =
     [cell p c | c <- currRow, p <- [0..currLen]]
     where

@@ -1,18 +1,17 @@
-module Colors(fgColor, tColor, nixEsc)  where
+module Colors(fgC, c0, wrapC )  where
 
--- background + HI fg
-tColor :: Int -> String
-tColor n =
-  let bg = 40
-      fg = 30
+
+wrapC :: String -> Int -> String
+wrapC s n =  ( fgC n ) ++ s ++ c0
+
+fgC :: Int -> String
+fgC c =
+  let foundation = 30
   in
-    nixEsc ( bg + n ) ++ nixEsc 1 ++ nixEsc ( fg + n )
+    nixEsc 1 ++ ( nixEsc $ foundation + c )
 
-fgColor :: Int -> String
-fgColor c =
-  let fg = 30
-  in
-    nixEsc $ fg + c
+c0 :: String
+c0 = nixEsc 0
 
-nixEsc :: Int ->String
+nixEsc :: Int -> String
 nixEsc n = "\ESC[" ++ show n ++ "m"
