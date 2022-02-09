@@ -41,6 +41,6 @@ main = do
   let maxCols = screenLen `div` 2
   let hexcodes = randHexcodes $ mkStdGen seed
   let rowStream = chunkIntoString maxCols hexcodes
-  putStrLn $ nixEsc 1 ++ tColor 4 -- HI fg, yellow
-  putStrLn $ "ColorTest" ++ nixEsc 0 -- restore ESC
-  -- mapM_ putStrLn $ hexedRows maxCols rowStream
+  --putStrLn $ nixEsc 1 ++ tColor 4 -- HI fg, yellow
+  --putStrLn $ "ColorTest" ++ nixEsc 0 -- restore ESC
+  mapM_ putStrLn $ hexedRows maxCols rowStream
