@@ -1,27 +1,37 @@
 module Main where
 
 import Colors
-import Influence (Hexcode)
-import System.Random (mkStdGen, StdGen, getStdGen, randomR)
+import Influence
+import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
 import Data.List (zip, transpose)
 import Data.Sequence (mapWithIndex,Seq)
 import Data.Maybe
 
 seed = 2022
-screenLen = 80
+screenLen = 18
 
 -- Hexcode bounds
-rLow = 1 :: Int
-rHi = 9 :: Int
+randLimits = (1,9)
 
 stringRepr = "xyzABCd-*."
+
+main :: IO ()
+main = do
+  let maxCols = screenLen `div` 2
+  let hexcodes = randHexcodes $ mkStdGen seed
+  let rowStream = chunkIntoString maxCols hexcodes
+  --putStrLn $ nixEsc 1 ++ tColor 4 -- HI fg, yellow
+  --putStrLn $ "ColorTest" ++ nixEsc 0 -- restore ESC
+  mapM_ putStrLn $ take 9 $ hexedRows rowStream
+
+
 
 
 -- recursive generator
 randHexcodes :: StdGen -> [Hexcode]
 randHexcodes g =
-  let (c, g') = randomR (rLow, rHi) g
+  let (c, g') = randomR randLimits g
   in c : randHexcodes g'
 
 
@@ -42,12 +52,3 @@ hexedRows rows =
 
 interleaveLists :: [[a]] -> [a]
 interleaveLists = concat . transpose
-
-main :: IO ()
-main = do
-  let maxCols = screenLen `div` 2
-  let hexcodes = randHexcodes $ mkStdGen seed
-  let rowStream = chunkIntoString maxCols hexcodes
-  --putStrLn $ nixEsc 1 ++ tColor 4 -- HI fg, yellow
-  --putStrLn $ "ColorTest" ++ nixEsc 0 -- restore ESC
-  mapM_ putStrLn $ hexedRows rowStream

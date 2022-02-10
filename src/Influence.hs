@@ -1,7 +1,10 @@
-module Influence (Hexcode,HexCell,Influencer,takeInflu,firstCell) where
+module Influence ( Hexcode
+                  ,HexCell(..)
+                  ,Influencer(..)
+                  ,takeInflu
+                  ) where
 
-
-import System.Random (mkStdGen, StdGen, getStdGen, randomR)
+import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
 
 type Hexcode = Int
 
@@ -11,35 +14,53 @@ type Hexcode = Int
     ? ?
 -}
 
-data HexCell = HexCell {
-  branchedFrom::Influencer HexCell, -- what is the cost?
-  branchedTimes::Int,
-  xPos::Int,
-  hexcode::Hexcode
-} deriving (Show)
-
-data Influencer a = AboveA a
-                | AboveB a
-                | Side a
+data Influencer = AboveA HexCell
+                | AboveB HexCell
+                | Side HexCell
                 | NoInflu
-                deriving (Show)
+                deriving (Show,Eq)
 
--- map :: (a -> b) -> [a] -> [b]
--- map _ [] = []
--- map f (x:xs) = f x : map f xs
-firstCell = HexCell NoInflu 0 0
+-- not important , just to show `comprehende
+instance Ord Influencer where
+  AboveA hc1 `compare` AboveA hc2 = hc1 `compare` hc2
+  AboveA _ `compare` AboveB _ = GT
+  AboveA _ `compare` Side _ = GT
+  AboveA _ `compare` NoInflu = LT -- ? kind of sense
+  AboveB hc1 `compare` AboveB hc2 = hc1 `compare` hc2
+  AboveB _ `compare` Side _ = GT
+  AboveB _ `compare` NoInflu = LT -- ? kind of sense
+  Side hc1 `compare` Side hc2 = hc1 `compare` hc2
+  Side _ `compare` NoInflu = LT -- ? kind of sense
+  NoInflu `compare` NoInflu = EQ
 
-hexedCellRow :: StdGen -> Maybe [HexCell] -> [Hexcode] -> [HexCell]
-hexedCellRow g Nothing currRow =
-    [cell p c | c <- currRow, p <- [0..currLen]]
-    where
-      currLen = length currRow
-      cell 0 c = firstCell c
-      -- cell n c = stuck
-      --   let (influ,g') = takeInflu g Nothing
 
 
-takeInflu :: StdGen -> Maybe [HexCell] -> Maybe HexCell -> (Influencer HexCell,StdGen)
+
+data HexCell = HexCell {
+  branchedFrom::Influencer, -- what is the cost?
+  branchedTimes::Int,
+  rowNum::Int,
+  cellNum::Int,
+  hexcode::Hexcode
+} deriving (Show,Eq)
+
+-- not important , just to show `comprehende
+instance Ord HexCell where
+  (HexCell _ _ r1 c1 _) `compare` (HexCell _ _ r2 c2 _) = (r1,c1) `compare` (r2,c2)
+
+
+world3x3 = (replicate 3 [0..2])
+
+-- generateLines :: StdGen -> [[HexCell]]
+-- generateLines g =
+--   foldr (\line acc -> acc ++ [innerF g acc line] ) [] world3x3
+--   where
+--     innerF g [] [] = foldr (\i acc -> takeInflu g Nothing Nothing) []
+--     innerF g [] (x:xs) = foldr (\i acc-> takeInflu g Nothing (Just x)) []
+--     innerF g (y:ys) (x:xs) = foldr (\i acc-> takeInflu g (Just y) (Just x)) []
+
+
+takeInflu :: StdGen -> Maybe [HexCell] -> Maybe HexCell -> (Influencer ,StdGen)
 takeInflu g Nothing Nothing = (NoInflu, g)
 takeInflu g Nothing (Just prevCell)
     | outcome <= 70 = (Side prevCell, g')
@@ -61,5 +82,5 @@ takeInflu g (Just aboveRow) (Just prevCell)
     | otherwise = (NoInflu, g')
     where
       (outcome, g' ) = randomR (1::Int, 4) g
-      aboveA = aboveRow !! ((xPos prevCell) + 1 )
-      aboveB = aboveRow !! ((xPos prevCell) + 2 )
+      aboveA = aboveRow !! ((cellNum prevCell) + 1 )
+      aboveB = aboveRow !! ((cellNum prevCell) + 2 )
