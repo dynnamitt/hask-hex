@@ -23,8 +23,8 @@ library
                        Influence
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.13 && <4.14,
-                       random >= 1.1
+  build-depends:       base,
+                       random
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -32,9 +32,9 @@ executable hask-hex
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.13 && <4.14,
+  build-depends:       base,
                        hask-hex,
-                       random >= 1.1,
+                       random,
                        containers
   -- hs-source-dirs:
   default-language:    Haskell2010

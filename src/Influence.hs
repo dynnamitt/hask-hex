@@ -65,7 +65,7 @@ takeInflu g Nothing (Just prevCell)
     | otherwise = (NoInflu, g')
     where
       (outcome, g' ) = randomR (1::Int, 100) g
-takeInflu g (Just x:y:xs) Nothing
+takeInflu g (Just (x:y:xs)) Nothing
     | outcome == 1 = (AboveA aboveA, g')
     | outcome == 2 = (AboveB aboveB, g')
     | otherwise = (NoInflu, g')
