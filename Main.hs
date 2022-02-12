@@ -26,8 +26,6 @@ main = do
   mapM_ putStrLn $ take 9 $ hexedRows rowStream
 
 
-
-
 -- recursive generator
 randHexcodes :: StdGen -> [Hexcode]
 randHexcodes g =
@@ -38,12 +36,12 @@ randHexcodes g =
 chunkIntoString :: Int -> [Hexcode] -> [String]
 chunkIntoString lineW cs =
   let line = map (stringRepr !!) $ take lineW cs -- concatMap (wrapC "X") $
-  in [line] ++ chunkIntoString lineW (drop lineW cs)
+  in line : chunkIntoString lineW (drop lineW cs)
 
 -- shew with "-1"
 hexedRows :: [String] -> [String]
 hexedRows rows =
-  map (\(row, skew) -> interleaveSkewed row skew) bipolarRows
+  map (uncurry interleaveSkewed) bipolarRows
   where
     bipolarRows = zip rows $ cycle [True,False]
     spc n = replicate  n ' '

@@ -34,8 +34,6 @@ instance Ord Influencer where
   NoInflu `compare` NoInflu = EQ
 
 
-
-
 data HexCell = HexCell {
   branchedFrom::Influencer, -- what is the cost?
   branchedTimes::Int,
@@ -49,7 +47,7 @@ instance Ord HexCell where
   (HexCell _ _ r1 c1 _) `compare` (HexCell _ _ r2 c2 _) = (r1,c1) `compare` (r2,c2)
 
 
-world3x3 = (replicate 3 [0..2])
+world3x3 = replicate 3 [0..2]
 
 -- generateLines :: StdGen -> [[HexCell]]
 -- generateLines g =
@@ -67,14 +65,14 @@ takeInflu g Nothing (Just prevCell)
     | otherwise = (NoInflu, g')
     where
       (outcome, g' ) = randomR (1::Int, 100) g
-takeInflu g (Just aboveRow) Nothing
+takeInflu g (Just x:y:xs) Nothing
     | outcome == 1 = (AboveA aboveA, g')
     | outcome == 2 = (AboveB aboveB, g')
     | otherwise = (NoInflu, g')
     where
       (outcome, g' ) = randomR (1::Int, 3) g
-      aboveA = aboveRow !! 0 -- ? This is a Maybe also !!!!!!!!!
-      aboveB = aboveRow !! 1
+      aboveA = x -- ? This is a Maybe also !!!!!!!!!
+      aboveB = y
 takeInflu g (Just aboveRow) (Just prevCell)
     | outcome == 1 = (Side prevCell, g')
     | outcome == 2 = (AboveA aboveA, g')
@@ -82,5 +80,5 @@ takeInflu g (Just aboveRow) (Just prevCell)
     | otherwise = (NoInflu, g')
     where
       (outcome, g' ) = randomR (1::Int, 4) g
-      aboveA = aboveRow !! ((cellNum prevCell) + 1 )
-      aboveB = aboveRow !! ((cellNum prevCell) + 2 )
+      aboveA = aboveRow !! (cellNum prevCell + 1 )
+      aboveB = aboveRow !! (cellNum prevCell + 2 )
