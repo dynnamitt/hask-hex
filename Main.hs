@@ -2,6 +2,7 @@ module Main where
 
 import Colors
 import Influence
+--import Universe
 import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
 import Data.List (zip, transpose)
@@ -9,29 +10,30 @@ import Data.Sequence (mapWithIndex,Seq)
 import Data.Maybe
 
 seed = 2022
-screenLen = 18
-
--- Hexcode bounds
-randLimits = (1,9)
-
-stringRepr = "xyzABCd-*."
+screenLen = 18 * 2
 
 main :: IO ()
-main = do
-  let maxCols = screenLen `div` 2
-  let hexcodes = randHexcodes $ mkStdGen seed
-  let rowStream = chunkIntoString maxCols hexcodes
-  --putStrLn $ nixEsc 1 ++ tColor 4 -- HI fg, yellow
-  --putStrLn $ "ColorTest" ++ nixEsc 0 -- restore ESC
-  mapM_ putStrLn $ take 9 $ hexedRows rowStream
+main = drawGrid screenLen screenLen
 
+drawGrid :: Int -> Int -> IO ()
+drawGrid maxCols maxRows = do
+  g <- getStdGen
+  let hexcodes = randHexcodes g
+  let rowStream = chunkIntoString maxCols hexcodes
+  let rows = take maxRows $ hexedRows rowStream
+  let nicerRows = map (\s -> bgC 0 ++ s ++ toNorm) rows
+  mapM_ putStrLn nicerRows
+
+
+stringRepr = "-*xyzABCd"
+-- Hexcode bounds
+randLimits = (0,3)
 
 -- recursive generator
 randHexcodes :: StdGen -> [Hexcode]
 randHexcodes g =
   let (c, g') = randomR randLimits g
   in c : randHexcodes g'
-
 
 chunkIntoString :: Int -> [Hexcode] -> [String]
 chunkIntoString lineW cs =

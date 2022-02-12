@@ -33,7 +33,6 @@ instance Ord Influencer where
   Side _ `compare` NoInflu = LT -- ? kind of sense
   NoInflu `compare` NoInflu = EQ
 
-
 data HexCell = HexCell {
   branchedFrom::Influencer, -- what is the cost?
   branchedTimes::Int,

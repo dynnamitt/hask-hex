@@ -10,7 +10,7 @@ synopsis:            fun
 homepage:            hex.gran.world
 -- bug-reports:
 license:             GPL-3
-license-file:        LICENSE
+-- license-file:        LICENSE
 author:              kjetil midtlie
 maintainer:          kjetil.midtlie@gmail.com
 -- copyright:
