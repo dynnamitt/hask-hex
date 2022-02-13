@@ -6,8 +6,6 @@ module Influence ( Hexcode
 
 import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
 
-type Hexcode = Int
-
 {-
     A B
    S * ?
