@@ -1,8 +1,10 @@
 module InfiniteHexGrid(
       initIHexGrid
+      ,IHexGridCursor(..)
+      ,IHexRowCursor(..)
   ) where
 
-  import System.Random (StdGen, randomR, randomRs)
+  import System.Random (StdGen, newStdGen, getStdGen, randomR, randomRs)
 
   data IHexRowCursor a = IHexRowCursor {
     west :: [a],
@@ -21,13 +23,19 @@ module InfiniteHexGrid(
 
   type GenTriple = (StdGen,StdGen,StdGen)
 
-  initIHexGrid :: GenTriple -> GenTriple -> GenTriple -> IHexGridCursor Int
-  initIHexGrid gs1 gs2 gs3 =
-    IHexGridCursor n row' s
-    where
-      row' = initIHexRow gs1 True
-      n = initIHexRow gs2 <$> cycle [False,True]
-      s = initIHexRow gs3 <$> cycle [False,True]
+  initIHexGrid :: IO (IHexGridCursor Int)
+  initIHexGrid = do
+    gt1:gt2:xs <- sequence [genTriplet,genTriplet,genTriplet]
+    let gt3 = head xs
+    let row' = initIHexRow gt1 True
+    let n = initIHexRow gt2 <$> cycle [False,True]
+    let s = initIHexRow gt3 <$> cycle [False,True]
+    return $ IHexGridCursor n row' s
+
+  genTriplet :: IO GenTriple
+  genTriplet = do
+    x:y:z <- sequence $ take 3 $ cycle [getStdGen,newStdGen]
+    return (x,y,head z)
 
   initIHexRow :: GenTriple -> Bool -> IHexRowCursor Int
   initIHexRow (g1,g2,g3) skew =

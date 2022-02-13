@@ -3,7 +3,7 @@ module Main where
 import Colors
 --import Influence
 import InfiniteHexGrid
-import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
+import System.Random (newStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
 import Data.List (zip, transpose)
 import Data.Sequence (mapWithIndex,Seq)
@@ -14,6 +14,7 @@ screenLen = 18 * 2
 
 main :: IO ()
 main = drawGrid screenLen screenLen
+
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
