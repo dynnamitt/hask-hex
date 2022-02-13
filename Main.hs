@@ -1,8 +1,8 @@
 module Main where
 
 import Colors
-import Influence
---import Universe
+--import Influence
+import InfiniteHexGrid
 import System.Random (mkStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
 import Data.List (zip, transpose)
@@ -21,19 +21,19 @@ drawGrid maxCols maxRows = do
   let hexcodes = randHexcodes g
   let rowStream = chunkIntoString maxCols hexcodes
   let rows = take maxRows $ hexedRows rowStream
-  let nicerRows = map (\s -> bgC 0 ++ s ++ toNorm) rows
+  let nicerRows = map (\s -> bgC 4 ++ s ++ toNorm) rows
   mapM_ putStrLn nicerRows
 
 
-stringRepr = "-*xyzABCd"
+stringRepr = "-*8/zABCd"
 -- Hexcode bounds
-randLimits = (0,3)
+randLimits = (0,5)
+
+type Hexcode = Int
 
 -- recursive generator
 randHexcodes :: StdGen -> [Hexcode]
-randHexcodes g =
-  let (c, g') = randomR randLimits g
-  in c : randHexcodes g'
+randHexcodes g = randomRs randLimits g
 
 chunkIntoString :: Int -> [Hexcode] -> [String]
 chunkIntoString lineW cs =
