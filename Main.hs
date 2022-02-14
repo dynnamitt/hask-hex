@@ -6,7 +6,7 @@ import InfiniteHexGrid
 import System.Random (newStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
 import Data.List (zip, transpose)
-import Data.Sequence (mapWithIndex,Seq)
+import Data.Sequence (mapWithIndex, Seq)
 import Data.Maybe
 
 seed = 2022
