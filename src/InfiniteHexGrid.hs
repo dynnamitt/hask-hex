@@ -1,11 +1,7 @@
 module InfiniteHexGrid(
       initIHexGrid
-
-      ,initIHexRow2
-      ,RowOffset(..)
-
-      ,showHexRow
-      ,showHexGrid
+      ,finiteHexRow
+      ,finiteHexGrid
       ,FiniteRow
       ,IHexGridCursor(..)
       ,IHexRowCursor(..)
@@ -16,7 +12,6 @@ import System.Random (StdGen, mkStdGen, newStdGen, getStdGen, randomR,random, ra
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
 
 type Point2D = (Int, Int)
-type GenTriple = (StdGen,StdGen,StdGen)
 type FiniteRow = (RowOffset,[Int])
 randLimits = (0,9)
 
@@ -27,42 +22,47 @@ data IHexRowCursor a = IHexRowCursor {
   offset :: RowOffset
 } deriving (Show, Eq, Ord)
 
-data IHexGridCursor a = IHexGridCursor {
-  north :: [IHexRowCursor a],
-  row :: IHexRowCursor a,
-  south :: [IHexRowCursor a]
-} deriving (Show, Eq, Ord)
+type IHexRowCursorPairs a = (IHexRowCursor a,StdGen)
 
-showHexGrid :: IHexGridCursor Int -> Point2D -> Point2D -> [FiniteRow]
-showHexGrid gcursor (width,height) (x,y) =
+data IHexGridCursor a = IHexGridCursor {
+  north :: [IHexRowCursorPairs a],
+  row :: IHexRowCursor a,
+  south :: [IHexRowCursorPairs a]
+} deriving (Show, Eq)
+
+finiteHexGrid :: IHexGridCursor Int -> Point2D -> Point2D -> [FiniteRow]
+finiteHexGrid ihgCursor (width,height) (x,y) =
   ns ++ [r] ++ ss
   where
-    r = showHexRow (row gcursor) width x
-    ns = reverse [ showHexRow rnc width x | rnc <- take y $ north gcursor ]
-    ss = [ showHexRow rsc width x | rsc <- take (height - y) $ south gcursor ]
+    r = finiteHexRow (row ihgCursor) width x
+    ns = reverse [ finiteHexRow rnc width x | rnc <- take y $ north ihgCursor ]
+    ss = [ finiteHexRow rsc width x | rsc <- take (height - y) $ south ihgCursor ]
 
-showHexRow :: IHexRowCursor Int -> Int -> Int -> FiniteRow
-showHexRow rcursor width xpos =
+finiteHexRow :: IHexRowCursor Int -> Int -> Int -> FiniteRow
+finiteHexRow ihrCursor width xpos =
    ( offset' , w ++ [pov'] ++ e )
    where
-     offset' = offset rcursor
+     offset' = offset ihrCursor
      offsetExtra = if (offset' == Complete) then 0 else 1
-     pov' = pov rcursor
-     w = reverse $ take xpos $ west rcursor
-     e = take (width - xpos + offsetExtra) $ east rcursor
+     pov' = pov ihrCursor
+     w = reverse $ take xpos $ west ihrCursor
+     e = take (width - xpos + offsetExtra) $ east ihrCursor
 
 initIHexGrid :: IO (IHexGridCursor Int)
 initIHexGrid = do
   g1:g2:g3:_ <- sequence [getStdGen,newStdGen,newStdGen]
-  let row' = initIHexRow g1 CappedEnds
-  let n = initIHexRow g2 <$> cycle [Complete,CappedEnds]
-  let s = initIHexRow g3 <$> cycle [Complete,CappedEnds]
+  let (row',_) = initIHexRow g1 CappedEnds
+  let f' = \rowO acc -> acc ++ [initIHexRow (snd.head $ acc) rowO]
+  let n = foldl f' [(row',g2)] $ cycle [Complete,CappedEnds]
+  let s = foldl f' [(row',g3)] $ cycle [Complete,CappedEnds]
+
+  --let n = initIHexRow g2 <$> cycle
+  --let s = initIHexRow g3 <$> cycle [Complete,CappedEnds]
   return $ IHexGridCursor n row' s
 
-
-initIHexRow :: StdGen -> RowOffset -> IHexRowCursor Int
+initIHexRow :: StdGen -> RowOffset -> (IHexRowCursor Int,StdGen)
 initIHexRow g1 rowO =
-  IHexRowCursor w pov' e rowO
+  (IHexRowCursor w pov' e rowO , g')
   where
     (pov', g2) = randomR randLimits g1
     (seed1, g3) = random g2 :: (Int,StdGen)
@@ -70,10 +70,11 @@ initIHexRow g1 rowO =
     w = randomRs randLimits $ mkStdGen seed1
     e = randomRs randLimits $ mkStdGen seed2
 
-initIHexRow2 :: RowOffset -> IO (IHexRowCursor Int)
-initIHexRow2 rowO = do
-  (pov', g2) <- randomR randLimits <$> newStdGen
-  g3 <- newStdGen
-  let w = randomRs randLimits g2
-  let e = randomRs randLimits g3
-  return $ IHexRowCursor w pov' e rowO
+-- cannot be used Lazy !!!
+-- initIHexRow2 :: RowOffset -> IO (IHexRowCursor Int)
+-- initIHexRow2 rowO = do
+--   (pov', g2) <- randomR randLimits <$> newStdGen
+--   g3 <- newStdGen
+--   let w = randomRs randLimits g2
+--   let e = randomRs randLimits g3
+--   return $ IHexRowCursor w pov' e rowO
