@@ -9,26 +9,21 @@ module InfiniteHexGrid(
 
 import System.Random (StdGen, newStdGen, getStdGen, randomR, randomRs)
 
+data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
+
 type Point2D = (Int, Int)
-type Box2D = (Point2D, Point2D)
 type GenTriple = (StdGen,StdGen,StdGen)
-type FiniteRow = (Bool,[Int])
+type FiniteRow = (RowOffset,[Int])
 randLimits = (0,9)
 
 data IHexRowCursor a = IHexRowCursor {
   west :: [a],
   pov :: a,
   east :: [a],
-  skewed :: Bool
+  offset :: RowOffset
 } deriving (Show, Eq, Ord)
 
-showHexRow :: IHexRowCursor Int -> Int -> Int -> FiniteRow
-showHexRow rcursor width xpos =
-   ( skewed rcursor , w' ++ [pov'] ++ e' )
-   where
-     pov' = pov rcursor
-     w' = reverse $ take xpos $ west rcursor
-     e' = take (width - xpos) $ east rcursor
+
 
 data IHexGridCursor a = IHexGridCursor {
   north :: [IHexRowCursor a],
@@ -44,14 +39,23 @@ showHexGrid gcursor (width,height) (x,y) =
     ns = reverse [ showHexRow rnc width x | rnc <- take y $ north gcursor ]
     ss = [ showHexRow rsc width x | rsc <- take (height - y) $ south gcursor ]
 
+showHexRow :: IHexRowCursor Int -> Int -> Int -> FiniteRow
+showHexRow rcursor width xpos =
+   ( offset' , w ++ [pov'] ++ e )
+   where
+     offset' = offset rcursor
+     offsetExtra = if (offset' == Complete) then 0 else 1
+     pov' = pov rcursor
+     w = reverse $ take xpos $ west rcursor
+     e = take (width - xpos + offsetExtra) $ east rcursor
 
 initIHexGrid :: IO (IHexGridCursor Int)
 initIHexGrid = do
   gt1:gt2:xs <- sequence [genTriplet,genTriplet,genTriplet]
   let gt3 = head xs
-  let row' = initIHexRow gt1 (Just 99) True
-  let n = initIHexRow gt2 Nothing <$> cycle [False,True]
-  let s = initIHexRow gt3 Nothing <$> cycle [False,True]
+  let row' = initIHexRow gt1 (Just 99) CappedEnds
+  let n = initIHexRow gt2 Nothing <$> cycle [Complete,CappedEnds]
+  let s = initIHexRow gt3 Nothing <$> cycle [Complete,CappedEnds]
   return $ IHexGridCursor n row' s
 
 genTriplet :: IO GenTriple
@@ -59,9 +63,9 @@ genTriplet = do
   x:y:z <- sequence $ take 3 $ cycle [getStdGen,newStdGen]
   return (x,y,head z)
 
-initIHexRow :: GenTriple -> Maybe Int -> Bool  -> IHexRowCursor Int
-initIHexRow (g1,g2,g3) povOverride skew =
-  IHexRowCursor w (getPov povOverride) e skew
+initIHexRow :: GenTriple -> Maybe Int -> RowOffset -> IHexRowCursor Int
+initIHexRow (g1,g2,g3) povOverride rowO =
+  IHexRowCursor w (getPov povOverride) e rowO
   where
     getPov Nothing = pov'
     getPov (Just n) = n
