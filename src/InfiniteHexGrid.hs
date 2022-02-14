@@ -1,5 +1,9 @@
 module InfiniteHexGrid(
       initIHexGrid
+
+      ,initIHexRow2
+      ,RowOffset(..)
+
       ,showHexRow
       ,showHexGrid
       ,FiniteRow
@@ -7,7 +11,7 @@ module InfiniteHexGrid(
       ,IHexRowCursor(..)
   ) where
 
-import System.Random (StdGen, newStdGen, getStdGen, randomR, randomRs)
+import System.Random (StdGen, mkStdGen, newStdGen, getStdGen, randomR,random, randomRs)
 
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
 
@@ -22,8 +26,6 @@ data IHexRowCursor a = IHexRowCursor {
   east :: [a],
   offset :: RowOffset
 } deriving (Show, Eq, Ord)
-
-
 
 data IHexGridCursor a = IHexGridCursor {
   north :: [IHexRowCursor a],
@@ -51,24 +53,27 @@ showHexRow rcursor width xpos =
 
 initIHexGrid :: IO (IHexGridCursor Int)
 initIHexGrid = do
-  gt1:gt2:xs <- sequence [genTriplet,genTriplet,genTriplet]
-  let gt3 = head xs
-  let row' = initIHexRow gt1 (Just 99) CappedEnds
-  let n = initIHexRow gt2 Nothing <$> cycle [Complete,CappedEnds]
-  let s = initIHexRow gt3 Nothing <$> cycle [Complete,CappedEnds]
+  g1:g2:g3:_ <- sequence [getStdGen,newStdGen,newStdGen]
+  let row' = initIHexRow g1 CappedEnds
+  let n = initIHexRow g2 <$> cycle [Complete,CappedEnds]
+  let s = initIHexRow g3 <$> cycle [Complete,CappedEnds]
   return $ IHexGridCursor n row' s
 
-genTriplet :: IO GenTriple
-genTriplet = do
-  x:y:z <- sequence $ take 3 $ cycle [getStdGen,newStdGen]
-  return (x,y,head z)
 
-initIHexRow :: GenTriple -> Maybe Int -> RowOffset -> IHexRowCursor Int
-initIHexRow (g1,g2,g3) povOverride rowO =
-  IHexRowCursor w (getPov povOverride) e rowO
+initIHexRow :: StdGen -> RowOffset -> IHexRowCursor Int
+initIHexRow g1 rowO =
+  IHexRowCursor w pov' e rowO
   where
-    getPov Nothing = pov'
-    getPov (Just n) = n
-    (pov',_) = randomR randLimits g1
-    w = randomRs randLimits g2
-    e = randomRs randLimits g3
+    (pov', g2) = randomR randLimits g1
+    (seed1, g3) = random g2 :: (Int,StdGen)
+    (seed2, g') = random g3 :: (Int,StdGen)
+    w = randomRs randLimits $ mkStdGen seed1
+    e = randomRs randLimits $ mkStdGen seed2
+
+initIHexRow2 :: RowOffset -> IO (IHexRowCursor Int)
+initIHexRow2 rowO = do
+  (pov', g2) <- randomR randLimits <$> newStdGen
+  g3 <- newStdGen
+  let w = randomRs randLimits g2
+  let e = randomRs randLimits g3
+  return $ IHexRowCursor w pov' e rowO
