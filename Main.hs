@@ -1,22 +1,18 @@
 module Main where
 
 import Colors
---import Influence
 import InfiniteHexGrid
-import System.Random (newStdGen, StdGen, getStdGen, randomR, randomRs)
-import Data.Char
+import System.Random (getStdGen)
 import Data.List (zip, transpose, unfoldr)
-import Data.Sequence (mapWithIndex, Seq)
-import Data.Maybe
 
 seed = 2022
-screenLen = 33
+screenLen = 20
 
-biomes = "-*8/" -- PutInto data w rangeInput
+biomes = "-|*¤X" -- PutInto data w rangeInput
 rRange = (0, length biomes - 1)
 
 main :: IO ()
-main = drawGrid screenLen $ screenLen
+main = drawGrid screenLen screenLen
 
 
 drawGrid :: Int -> Int -> IO ()
@@ -26,8 +22,8 @@ drawGrid maxCols maxRows = do
   let grid = initIHexGrid g rRange
   let fGrid = finiteHexGrid (maxCols,maxRows) (x,y) grid
   let rasterized = map (zoomRow2x biomes) fGrid
-  --let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) rasterized
-  mapM_ putStrLn rasterized
+  let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) rasterized
+  mapM_ putStrLn nicerRows
 
 zoomRow2x :: [Char] -> FiniteRow -> String
 zoomRow2x biomeSet (off, x:xs) =

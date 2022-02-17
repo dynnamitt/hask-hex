@@ -15,7 +15,6 @@ import System.Random (
 
 type Point2D = (Int, Int)
 type FiniteRow = (RowOffset,[Int])
-randLimits = (0,9)
 
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
 
@@ -32,7 +31,6 @@ data IHexGridCursor a = IHexGridCursor {
   row :: IHexRowCursor a,
   south :: [IHexRowCursor a]
 } deriving (Show, Eq, Ord)
-
 
 initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGridCursor Int
 initIHexGrid g rRange =
