@@ -10,68 +10,30 @@ import Data.Sequence (mapWithIndex, Seq)
 import Data.Maybe
 
 seed = 2022
-screenLen = 80
+screenLen = 33
 
-halfOf :: Int -> Int
-halfOf n = div n 2
+biomes = "-*8/" -- PutInto data w rangeInput
+rRange = (0, length biomes - 1)
 
 main :: IO ()
-main = drawGrid2 screenLen (halfOf screenLen)
-
-drawGrid2 :: Int -> Int -> IO ()
-drawGrid2 maxCols maxRows = do
-  g <- getStdGen
-  let (x,y) = (3,3)
-  let grid = initIHexGrid g -- rangeInput?
-  let fGrid = finiteHexGrid grid (maxCols,maxRows) (x,y)
-  let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) $ fromFHexRow fGrid
-  let nicerRows' = fromFHexRow fGrid
-  mapM_ putStrLn nicerRows'
-
-stringRepr = "-*8/-*8/-*8" -- PutInto data w rangeInput
-fromFHexRow :: [FiniteRow] -> [String]
-fromFHexRow =
-  map (\(off, xs) -> (offsetChr off) ++ charify xs)
-  where
-    offsetChr CappedEnds = " "
-    offsetChr Complete = ""
-    charify = map (stringRepr !!)
+main = drawGrid screenLen $ screenLen
 
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
   g <- getStdGen
-  let hexcodes = randHexcodes g
-  let rowStream = chunkIntoString maxCols hexcodes
-  let rows = take maxRows $ hexedRows rowStream
-  let nicerRows = map (\s -> bgC 4 ++ s ++ toNorm) rows
-  mapM_ putStrLn nicerRows
+  let (x,y) = (10,10)
+  let grid = initIHexGrid g rRange
+  let fGrid = finiteHexGrid (maxCols,maxRows) (x,y) grid
+  let rasterized = map (zoomRow2x biomes) fGrid
+  --let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) rasterized
+  mapM_ putStrLn rasterized
 
-
-
--- Hexcode bounds
-randLimits = (0,5)
-
-type Hexcode = Int
-
--- recursive generator
-randHexcodes :: StdGen -> [Hexcode]
-randHexcodes g = randomRs randLimits g
-
-chunkIntoString :: Int -> [Hexcode] -> [String]
-chunkIntoString lineW cs =
-  let line = map (stringRepr !!) $ take lineW cs -- concatMap (wrapC "X") $
-  in line : chunkIntoString lineW (drop lineW cs)
-
--- shew with "-1"
-hexedRows :: [String] -> [String]
-hexedRows rows =
-  map (uncurry interleaveSkewed) bipolarRows
+zoomRow2x :: [Char] -> FiniteRow -> String
+zoomRow2x biomeSet (off, x:xs) =
+    maybeCap off x ++ concatMap complete (init xs) ++ maybeCap off (last xs)
   where
-    bipolarRows = zip rows $ cycle [True,False]
-    spc n = replicate  n ' '
-    interleaveSkewed row True = interleaveLists [row, spc $ length row]
-    interleaveSkewed row False = interleaveLists [spc $ length row, row]
-
-interleaveLists :: [[a]] -> [a]
-interleaveLists = concat . transpose
+    maybeCap CappedEnds = capped
+    maybeCap Complete = complete
+    capped = (:[]) . (!!) biomeSet
+    complete = replicate 2 . (!!) biomeSet

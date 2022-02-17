@@ -16,7 +16,6 @@ import System.Random (
 type Point2D = (Int, Int)
 type FiniteRow = (RowOffset,[Int])
 randLimits = (0,9)
-randomSalt = 42
 
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
 
@@ -35,41 +34,41 @@ data IHexGridCursor a = IHexGridCursor {
 } deriving (Show, Eq, Ord)
 
 
-initIHexGrid :: RandomGen g => g -> IHexGridCursor Int
-initIHexGrid g =
+initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGridCursor Int
+initIHexGrid g rRange =
   IHexGridCursor n row' s
   where
     s0:s1:northSeeds = unfoldr (Just . uniform) g :: [Int]
     southSeeds = unfoldr (Just . uniform) $ mkStdGen s0 :: [Int]
-    row' = initIHexRow (mkStdGen s1) CappedEnds
+    row' = initIHexRow (mkStdGen s1) rRange CappedEnds
     offsets = cycle [Complete,CappedEnds]
-    n = map (\(s,off) -> initIHexRow (mkStdGen s) off) $ zip northSeeds offsets
-    s = map (\(s,off) -> initIHexRow (mkStdGen s) off) $ zip southSeeds offsets
+    n = map (\(s,off) -> initIHexRow (mkStdGen s) rRange off) $ zip northSeeds offsets
+    s = map (\(s,off) -> initIHexRow (mkStdGen s) rRange off) $ zip southSeeds offsets
 
 
-initIHexRow :: RandomGen g => g -> RowOffset -> IHexRowCursor Int
-initIHexRow g1 offset =
-  IHexRowCursor w pov' e offset
+initIHexRow :: RandomGen g => g ->  (Int,Int)-> RowOffset -> IHexRowCursor Int
+initIHexRow g1 rRange =
+  IHexRowCursor w pov' e
   where
-    seed0:seed1:_ = unfoldr (Just . uniform) g1 :: [Int]
-    (pov', g2) = uniformR randLimits $ mkStdGen seed0
-    w = unfoldr (Just . uniformR randLimits) $ g2
-    e = unfoldr (Just . uniformR randLimits) $ mkStdGen seed1
+    seed0:eastSeed:_ = unfoldr (Just . uniform) g1 :: [Int]
+    (pov', westSeed) = uniformR rRange $ mkStdGen seed0
+    w = unfoldr (Just . uniformR rRange) westSeed
+    e = unfoldr (Just . uniformR rRange) $ mkStdGen eastSeed
 
-finiteHexGrid :: IHexGridCursor Int -> Point2D -> Point2D -> [FiniteRow]
-finiteHexGrid ihgCursor (width,height) (x,y) =
+finiteHexGrid ::  Point2D -> Point2D -> IHexGridCursor Int -> [FiniteRow]
+finiteHexGrid (width,height) (x,y) ihgCursor =
   ns ++ [r] ++ ss
   where
-    r = finiteHexRow (row ihgCursor) width x
-    ns = reverse [ finiteHexRow rnC width x | rnC <- take y $ north ihgCursor ]
-    ss = [ finiteHexRow rsC width x | rsC <- take (height - y) $ south ihgCursor ]
+    r = finiteHexRow width x (row ihgCursor)
+    ns = reverse [ finiteHexRow width x rnC | rnC <- take y $ north ihgCursor ]
+    ss = [ finiteHexRow width x rsC | rsC <- take (height - y) $ south ihgCursor ]
 
-finiteHexRow :: IHexRowCursor Int -> Int -> Int -> FiniteRow
-finiteHexRow ihrCursor width xpos =
+finiteHexRow ::  Int -> Int -> IHexRowCursor Int -> FiniteRow
+finiteHexRow width xpos ihrCursor =
    ( offset' , w ++ [pov'] ++ e )
    where
      offset' = offset ihrCursor
-     offsetExtra = if (offset' == Complete) then 0 else 1
+     offsetExtra = if offset' == Complete then 0 else 1
      pov' = pov ihrCursor
      w = reverse $ take xpos $ west ihrCursor
      e = take (width - xpos + offsetExtra) $ east ihrCursor
