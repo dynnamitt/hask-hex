@@ -5,15 +5,37 @@ import Colors
 import InfiniteHexGrid
 import System.Random (newStdGen, StdGen, getStdGen, randomR, randomRs)
 import Data.Char
-import Data.List (zip, transpose)
+import Data.List (zip, transpose, unfoldr)
 import Data.Sequence (mapWithIndex, Seq)
 import Data.Maybe
 
 seed = 2022
-screenLen = 18 * 2
+screenLen = 80
+
+halfOf :: Int -> Int
+halfOf n = div n 2
 
 main :: IO ()
-main = drawGrid screenLen screenLen
+main = drawGrid2 screenLen (halfOf screenLen)
+
+drawGrid2 :: Int -> Int -> IO ()
+drawGrid2 maxCols maxRows = do
+  g <- getStdGen
+  let (x,y) = (3,3)
+  let grid = initIHexGrid g -- rangeInput?
+  let fGrid = finiteHexGrid grid (maxCols,maxRows) (x,y)
+  let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) $ fromFHexRow fGrid
+  let nicerRows' = fromFHexRow fGrid
+  mapM_ putStrLn nicerRows'
+
+stringRepr = "-*8/-*8/-*8" -- PutInto data w rangeInput
+fromFHexRow :: [FiniteRow] -> [String]
+fromFHexRow =
+  map (\(off, xs) -> (offsetChr off) ++ charify xs)
+  where
+    offsetChr CappedEnds = " "
+    offsetChr Complete = ""
+    charify = map (stringRepr !!)
 
 
 drawGrid :: Int -> Int -> IO ()
@@ -26,7 +48,7 @@ drawGrid maxCols maxRows = do
   mapM_ putStrLn nicerRows
 
 
-stringRepr = "-*8/zABCd"
+
 -- Hexcode bounds
 randLimits = (0,5)
 
