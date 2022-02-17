@@ -4,21 +4,43 @@ import Colors
 import InfiniteHexGrid
 import System.Random (getStdGen)
 import Data.List (zip, transpose, unfoldr)
+import System.Environment
+import System.Exit
 
-seed = 2022
-screenLen = 20
+screenLen = 25
 
-biomes = "-|*¤X" -- PutInto data w rangeInput
+biomes = "█·▒░·▓"
 rRange = (0, length biomes - 1)
 
-main :: IO ()
-main = drawGrid screenLen screenLen
+data InputArgs = InputArgs {
+  viewportW::Int,
+  viewportH::Int
+} deriving (Show)
 
+main :: IO ()
+main = do
+  args' <- parseArgs 2
+  drawGrid (viewportW args') (viewportH args')
+
+-- args or death
+parseArgs :: Int -> IO InputArgs
+parseArgs argsLen = do
+  args <- getArgs -- IO
+  if length args < argsLen
+    then do
+      usage
+      exitWith $ ExitFailure 1
+    else do
+      -- errorhandling ?
+      return InputArgs {
+        viewportW = read $ args !! 0
+      , viewportH = read $ args !! 1
+     }
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
   g <- getStdGen
-  let (x,y) = (10,10)
+  let (x,y) = (0,0)
   let grid = initIHexGrid g rRange
   let fGrid = finiteHexGrid (maxCols,maxRows) (x,y) grid
   let rasterized = map (zoomRow2x biomes) fGrid
@@ -33,3 +55,11 @@ zoomRow2x biomeSet (off, x:xs) =
     maybeCap Complete = complete
     capped = (:[]) . (!!) biomeSet
     complete = replicate 2 . (!!) biomeSet
+
+usage :: IO ()
+usage = do
+  prog <- getProgName
+  putStrLn "usage:"
+  putStrLn $ "  " ++ prog ++ " WIDTH HEIGHT [ZOOM] "
+  putStrLn " "
+  putStrLn "  Prints hexagon cells to terminal. ZOOM default = 2"
