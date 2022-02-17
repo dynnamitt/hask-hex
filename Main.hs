@@ -7,8 +7,7 @@ import Data.List (zip, transpose, unfoldr)
 import System.Environment
 import System.Exit
 
-screenLen = 25
-
+heroFace = 'ツ'
 biomes = "█·▒░·▓"
 rRange = (0, length biomes - 1)
 
@@ -33,28 +32,33 @@ parseArgs argsLen = do
     else do
       -- errorhandling ?
       return InputArgs {
-        viewportW = read $ args !! 0
+        viewportW = read $ head args
       , viewportH = read $ args !! 1
      }
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
   g <- getStdGen
-  let (x,y) = (0,0)
+  let (x,y) = (div maxCols 2, div maxRows 2)
   let grid = initIHexGrid g rRange
   let fGrid = finiteHexGrid (maxCols,maxRows) (x,y) grid
-  let rasterized = map (zoomRow2x biomes) fGrid
-  let nicerRows = map (\r -> bgC 0 ++ r ++ toNorm) rasterized
+  let rasterized = map zoomRow2x fGrid
+  let nicerRows = map (\r -> bgC 6 ++ r ++ toNorm) rasterized
   mapM_ putStrLn nicerRows
 
-zoomRow2x :: [Char] -> FiniteRow -> String
-zoomRow2x biomeSet (off, x:xs) =
-    maybeCap off x ++ concatMap complete (init xs) ++ maybeCap off (last xs)
+zoomRow2x :: FiniteRow -> String
+zoomRow2x (off, x:xs) =
+    cap off x ++ middle ++ cap off (last xs)
   where
-    maybeCap CappedEnds = capped
-    maybeCap Complete = complete
-    capped = (:[]) . (!!) biomeSet
-    complete = replicate 2 . (!!) biomeSet
+    middle = concat . map (expandCell 2) $ init xs
+    cap CappedEnds = expandCell 1
+    cap Complete = expandCell 2
+
+expandCell :: Int -> Int -> [Char]
+expandCell zoom x
+  | x <= snd rRange = replicate zoom $ biomes !! x
+  | x >= heroBase = heroFace:[]
+  | otherwise = show x
 
 usage :: IO ()
 usage = do

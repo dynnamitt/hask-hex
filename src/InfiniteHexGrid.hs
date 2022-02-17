@@ -3,6 +3,7 @@ module InfiniteHexGrid(
       ,initIHexRow
       ,finiteHexRow
       ,finiteHexGrid
+      ,heroBase
       ,FiniteRow
       ,RowOffset(..)
       ,IHexGridCursor(..)
@@ -15,8 +16,8 @@ import System.Random (
 
 type Point2D = (Int, Int)
 type FiniteRow = (RowOffset,[Int])
-
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
+heroBase = 1000
 
 -- Make monoid, we need an empty/identity for fold?
 data IHexRowCursor a = IHexRowCursor {
@@ -57,16 +58,16 @@ finiteHexGrid ::  Point2D -> Point2D -> IHexGridCursor Int -> [FiniteRow]
 finiteHexGrid (width,height) (x,y) ihgCursor =
   ns ++ [r] ++ ss
   where
-    r = finiteHexRow width x (row ihgCursor)
-    ns = reverse [ finiteHexRow width x rnC | rnC <- take y $ north ihgCursor ]
-    ss = [ finiteHexRow width x rsC | rsC <- take (height - y) $ south ihgCursor ]
+    r = finiteHexRow heroBase width x (row ihgCursor)
+    ns = reverse [ finiteHexRow 0 width x rnC | rnC <- take y $ north ihgCursor ]
+    ss = [ finiteHexRow 0 width x rsC | rsC <- take (height - y) $ south ihgCursor ]
 
-finiteHexRow ::  Int -> Int -> IHexRowCursor Int -> FiniteRow
-finiteHexRow width xpos ihrCursor =
+finiteHexRow ::  Int -> Int -> Int -> IHexRowCursor Int -> FiniteRow
+finiteHexRow b width xpos ihrCursor =
    ( offset' , w ++ [pov'] ++ e )
    where
      offset' = offset ihrCursor
      offsetExtra = if offset' == Complete then 0 else 1
-     pov' = pov ihrCursor
+     pov' = pov ihrCursor + b
      w = reverse $ take xpos $ west ihrCursor
      e = take (width - xpos + offsetExtra) $ east ihrCursor
