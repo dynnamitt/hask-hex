@@ -1,6 +1,6 @@
 # hask-hex
 
-Another tile-gen generation, now using hexagons
+Another tile-gen generation, now using hexagons, sometimes zoomed down to squares :-D
 
 Work In Progress
 
