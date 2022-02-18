@@ -1,15 +1,13 @@
 module Main where
 
-import Colors
 import InfiniteHexGrid
-import System.Random (getStdGen)
+import FiniteHexGrid
+import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr)
 import System.Environment
 import System.Exit
 
 heroFace = 'ツ'
-biomes = "█·▒░·▓"
-rRange = (0, length biomes - 1)
 
 data InputArgs = InputArgs {
   viewportW::Int,
@@ -38,27 +36,11 @@ parseArgs argsLen = do
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
-  g <- getStdGen
+  let gen = mkStdGen $ wSeed world1
   let (x,y) = (div maxCols 2, div maxRows 2)
-  let grid = initIHexGrid g rRange
-  let fGrid = finiteHexGrid (maxCols,maxRows) (x,y) grid
-  let rasterized = map zoomRow2x fGrid
-  let nicerRows = map (\r -> bgC 6 ++ r ++ toNorm) rasterized
-  mapM_ putStrLn nicerRows
-
-zoomRow2x :: FiniteRow -> String
-zoomRow2x (off, x:xs) =
-    cap off x ++ middle ++ cap off (last xs)
-  where
-    middle = concat . map (expandCell 2) $ init xs
-    cap CappedEnds = expandCell 1
-    cap Complete = expandCell 2
-
-expandCell :: Int -> Int -> [Char]
-expandCell zoom x
-  | x <= snd rRange = replicate zoom $ biomes !! x
-  | x >= heroBase = heroFace:[]
-  | otherwise = show x
+  let grid = initIHexGrid gen (0, wSize world1)
+  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 world1
+  mapM_ putStrLn $ finiteHexGrid viewPort grid
 
 usage :: IO ()
 usage = do

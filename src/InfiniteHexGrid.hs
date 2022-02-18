@@ -1,10 +1,6 @@
 module InfiniteHexGrid(
       initIHexGrid
-      ,initIHexRow
-      ,finiteHexRow
-      ,finiteHexGrid
-      ,heroBase
-      ,FiniteRow
+      --,initIHexRow
       ,RowOffset(..)
       ,IHexGridCursor(..)
       ,IHexRowCursor(..)
@@ -14,10 +10,8 @@ import Data.List (unfoldr)
 import System.Random (
   RandomGen, uniform, uniformR, mkStdGen)
 
-type Point2D = (Int, Int)
-type FiniteRow = (RowOffset,[Int])
+
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
-heroBase = 1000
 
 -- Make monoid, we need an empty/identity for fold?
 data IHexRowCursor a = IHexRowCursor {
@@ -50,24 +44,6 @@ initIHexRow g1 rRange =
   IHexRowCursor w pov' e
   where
     seed0:eastSeed:_ = unfoldr (Just . uniform) g1 :: [Int]
-    (pov', westSeed) = uniformR rRange $ mkStdGen seed0
-    w = unfoldr (Just . uniformR rRange) westSeed
+    (pov', g2) = uniformR rRange $ mkStdGen seed0
+    w = unfoldr (Just . uniformR rRange) g2
     e = unfoldr (Just . uniformR rRange) $ mkStdGen eastSeed
-
-finiteHexGrid ::  Point2D -> Point2D -> IHexGridCursor Int -> [FiniteRow]
-finiteHexGrid (width,height) (x,y) ihgCursor =
-  ns ++ [r] ++ ss
-  where
-    r = finiteHexRow heroBase width x (row ihgCursor)
-    ns = reverse [ finiteHexRow 0 width x rnC | rnC <- take y $ north ihgCursor ]
-    ss = [ finiteHexRow 0 width x rsC | rsC <- take (height - y) $ south ihgCursor ]
-
-finiteHexRow ::  Int -> Int -> Int -> IHexRowCursor Int -> FiniteRow
-finiteHexRow b width xpos ihrCursor =
-   ( offset' , w ++ [pov'] ++ e )
-   where
-     offset' = offset ihrCursor
-     offsetExtra = if offset' == Complete then 0 else 1
-     pov' = pov ihrCursor + b
-     w = reverse $ take xpos $ west ihrCursor
-     e = take (width - xpos + offsetExtra) $ east ihrCursor
