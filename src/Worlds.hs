@@ -1,5 +1,6 @@
 module Worlds(
        world1
+      ,worldMono
       ,CellVisuals(..)
       ,World(..)
       ,wSize
@@ -26,4 +27,12 @@ world1 = World 2021 [ CellVisuals "" '█' ""
                       ,CellVisuals "" '░' ""
                       ,CellVisuals (fgC 4) '·' toNorm
                       ,CellVisuals "" '▓' ""
+                    ]
+
+worldMono = World 2021 [ CellVisuals "" '█' ""
+                        ,CellVisuals "" '·' ""
+                        ,CellVisuals "" '▒' ""
+                        ,CellVisuals "" '░' ""
+                        ,CellVisuals "" '·' ""
+                        ,CellVisuals "" '▓' ""
                     ]
