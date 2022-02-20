@@ -21,7 +21,7 @@ data World = World {
 
 wSize bs = length (biomes bs) - 1
 
-world1 = World 2021 [ CellVisuals "" '█' ""
+world1 = World 11 [ CellVisuals "" '█' ""
                       ,CellVisuals (fgC 3) '·' toNorm
                       ,CellVisuals "" '▒' ""
                       ,CellVisuals "" '░' ""
@@ -29,7 +29,7 @@ world1 = World 2021 [ CellVisuals "" '█' ""
                       ,CellVisuals "" '▓' ""
                     ]
 
-worldMono = World 2021 [ CellVisuals "" '█' ""
+worldMono = World 3031 [ CellVisuals "" '█' ""
                         ,CellVisuals "" '·' ""
                         ,CellVisuals "" '▒' ""
                         ,CellVisuals "" '░' ""
