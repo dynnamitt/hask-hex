@@ -38,7 +38,7 @@ drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
   let gen = mkStdGen $ wSeed world1
   let (x,y) = (div maxCols 4, div maxRows 4)
-  let grid = move West $ move West $ initIHexGrid gen (0, wSize world1)
+  let grid = move East $ initIHexGrid gen (0, wSize world1)
   let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 world1
   mapM_ putStrLn $ finiteHexGrid viewPort grid
 

@@ -29,10 +29,13 @@ data IHexGrid a = IHexGrid {
 } deriving (Show, Eq, Ord)
 
 move :: Direction -> IHexGrid a -> IHexGrid a
-move dir (IHexGrid n@(n':ns) (IHexRow w@(w':ws) p e@(e':es) o) s@(s':ss)) =
+move dir (IHexGrid n@(n':ns) r@(IHexRow w@(w':ws) p e@(e':es) o) s@(s':ss)) =
   case dir of
     West -> IHexGrid n (IHexRow ws w' (p:e) o) s
     East -> IHexGrid n (IHexRow (p:w) e' es o) s
+    North -> IHexGrid ns n' (r:s)
+    South -> IHexGrid (r:n) s' ss
+
 
 
 initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGrid Int

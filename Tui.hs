@@ -21,14 +21,14 @@ myUniverse =
     sizeW = (222, 222)
     zoom = 2
     gen = mkStdGen $ wSeed w'
-    grid = move East $ initIHexGrid gen (0, wSize w')
+    grid = move South $ initIHexGrid gen (0, wSize w')
     viewPort = ViewPort sizeW (10,10) zoom w'
 
 ui :: Widget ()
 ui =
   withBorderStyle unicode $
   borderWithLabel (str "Hello!") $
-  (center (str myUniverse) <+> vBorder <+> center (str "Right"))
+  str myUniverse
   --str myUniverse
 
 main :: IO ()

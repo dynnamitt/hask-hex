@@ -7,6 +7,7 @@ module FiniteHexGrid(
   ) where
 
 import Worlds
+import Colors
 import InfiniteHexGrid
 
 povMarker = CellVisuals "" '×' ""
