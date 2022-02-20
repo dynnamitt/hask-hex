@@ -1,6 +1,7 @@
 module Main where
 
 import Brick.AttrMap
+import Brick.Widgets.Border
 import Brick.Main
 import Brick.Types
 import Brick.Widgets.Core
@@ -19,7 +20,7 @@ data ResourceName =
   ResourceName
   deriving (Show, Eq, Ord)
 
-tuiApp :: App (IHexGrid Int) e ResourceName
+tuiApp :: App (IHexGrid Int) e ()
 tuiApp =
   App
     { appDraw = drawTui
@@ -35,9 +36,11 @@ buildInitialState =
   where
     gen = mkStdGen $ wSeed w'
 
-drawTui :: IHexGrid Int -> [Widget ResourceName]
+drawTui :: IHexGrid Int -> [Widget ()]
 drawTui grid =
-  [vBox $ map str $ finiteHexGrid viewPort grid]
+  [ borderWithLabel (str " [q]uit | wasd ") $
+    vBox $ (map str $ finiteHexGrid viewPort grid)
+    ]
   where
     viewPort = ViewPort (150, 150) (15,15) zoom w'
     zoom = 2
