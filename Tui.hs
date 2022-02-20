@@ -1,6 +1,9 @@
 module Main where
 
-import Brick
+import Brick (Widget, simpleMain, (<+>), str, withBorderStyle)
+import Brick.Widgets.Center (center)
+import Brick.Widgets.Border (borderWithLabel, vBorder)
+import Brick.Widgets.Border.Style (unicode)
 
 import Worlds
 import FiniteHexGrid
@@ -18,11 +21,15 @@ myUniverse =
     sizeW = (222, 222)
     zoom = 2
     gen = mkStdGen $ wSeed w'
-    grid = initIHexGrid gen (0, wSize w')
+    grid = move East $ initIHexGrid gen (0, wSize w')
     viewPort = ViewPort sizeW (10,10) zoom w'
 
 ui :: Widget ()
-ui = str myUniverse
+ui =
+  withBorderStyle unicode $
+  borderWithLabel (str "Hello!") $
+  (center (str myUniverse) <+> vBorder <+> center (str "Right"))
+  --str myUniverse
 
 main :: IO ()
 main = simpleMain ui

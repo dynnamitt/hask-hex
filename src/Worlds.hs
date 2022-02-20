@@ -10,7 +10,7 @@ import Colors
 
 data CellVisuals = CellVisuals {
    escBefore::String
-  ,char ::Char
+  ,cellChar ::Char
   ,escAfter ::String
 } deriving (Show,Eq,Ord)
 

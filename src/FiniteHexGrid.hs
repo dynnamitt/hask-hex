@@ -9,6 +9,9 @@ module FiniteHexGrid(
 import Worlds
 import InfiniteHexGrid
 
+povMarker = CellVisuals "" '×' ""
+povBase = 100
+
 type FiniteRow = (RowOffset, [Int])
 
 data ViewPort = ViewPort {
@@ -19,27 +22,27 @@ data ViewPort = ViewPort {
 } deriving (Show)
 
 
-finiteHexGrid ::  ViewPort -> IHexGridCursor Int -> [String]
+finiteHexGrid ::  ViewPort -> IHexGrid Int -> [String]
 finiteHexGrid vp@(ViewPort _ _ zoom (World _ biomes))
   | zoom == 2 = map (zoomRow2x biomes) . finiteHexGrid' vp
   | otherwise = error "Not an option!"
   where
 
-finiteHexGrid' :: ViewPort -> IHexGridCursor Int -> [FiniteRow]
+finiteHexGrid' :: ViewPort -> IHexGrid Int -> [FiniteRow]
 finiteHexGrid' (ViewPort (w,h) (x,y) _ _ ) ihgCursor =
   ns ++ [r] ++ ss
   where
-    r = finiteHexRow (w,x) (row ihgCursor)
-    ns = reverse [ finiteHexRow (w,x) rnC | rnC <- take y $ north ihgCursor ]
-    ss = [ finiteHexRow (w,x) rsC | rsC <- take (h - y) $ south ihgCursor ]
+    r = finiteHexRow (w,x) povBase (row ihgCursor)
+    ns = reverse [ finiteHexRow (w,x) 0 rnC | rnC <- take y $ north ihgCursor ]
+    ss = [ finiteHexRow (w,x) 0 rsC | rsC <- take (h - y) $ south ihgCursor ]
 
-finiteHexRow :: (Int,Int) -> IHexRowCursor Int -> FiniteRow
-finiteHexRow (width,xpos) ihrCursor =
+finiteHexRow :: (Int,Int) -> Int -> IHexRow Int -> FiniteRow
+finiteHexRow (width,xpos) baseVal ihrCursor =
    ( offset' , w ++ [pov'] ++ e )
    where
      offset' = offset ihrCursor
      offsetExtra = if offset' == Complete then 0 else 1
-     pov' = pov ihrCursor
+     pov' = pov ihrCursor + baseVal
      w = reverse $ take xpos $ west ihrCursor
      e = take (width - xpos + offsetExtra) $ east ihrCursor
 
@@ -47,12 +50,14 @@ zoomRow2x :: [CellVisuals] -> FiniteRow -> String
 zoomRow2x biomes (off, x:xs) =
    cap off x ++ middle ++ cap off (last xs)
  where
-   middle = concat . map (expandCell biomes 2) $ init xs
-   cap CappedEnds = expandCell biomes 1
-   cap Complete = expandCell biomes 2
+   middle = concat . map (showSquareCell biomes 2) $ init xs
+   cap CappedEnds = showSquareCell biomes 1 -- half
+   cap Complete = showSquareCell biomes 2
 
-expandCell :: [CellVisuals] -> Int -> Int -> [Char]
-expandCell biomes zoom x =
- escBefore biome ++ replicate zoom (char biome) ++ escAfter biome
+showSquareCell :: [CellVisuals] -> Int -> Int -> [Char]
+showSquareCell biomes zoom x =
+ escBefore cellV ++ replicate zoom (cellChar cellV) ++ escAfter cellV
  where
-   biome = biomes !! x
+   cellV = if x <= length biomes
+               then biomes !! x
+               else povMarker

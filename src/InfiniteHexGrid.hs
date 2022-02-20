@@ -1,35 +1,43 @@
 module InfiniteHexGrid(
       initIHexGrid
-      --,initIHexRow
+      ,move
+      ,Direction(..)
       ,RowOffset(..)
-      ,IHexGridCursor(..)
-      ,IHexRowCursor(..)
+      ,IHexGrid(..)
+      ,IHexRow(..)
   ) where
 
 import Data.List (unfoldr)
 import System.Random (
   RandomGen, uniform, uniformR, mkStdGen)
 
-
 data RowOffset = Complete | CappedEnds deriving (Show,Eq,Ord)
+data Direction = West | East | North | South deriving (Show,Eq)
 
 -- Make monoid, we need an empty/identity for fold?
-data IHexRowCursor a = IHexRowCursor {
+data IHexRow a = IHexRow {
   west :: [a],
   pov :: a,
   east :: [a],
   offset :: RowOffset
 } deriving (Show, Eq, Ord)
 
-data IHexGridCursor a = IHexGridCursor {
-  north :: [IHexRowCursor a],
-  row :: IHexRowCursor a,
-  south :: [IHexRowCursor a]
+data IHexGrid a = IHexGrid {
+  north :: [IHexRow a],
+  row :: IHexRow a,
+  south :: [IHexRow a]
 } deriving (Show, Eq, Ord)
 
-initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGridCursor Int
+move :: Direction -> IHexGrid a -> IHexGrid a
+move dir (IHexGrid n@(n':ns) (IHexRow w@(w':ws) p e@(e':es) o) s@(s':ss)) =
+  case dir of
+    West -> IHexGrid n (IHexRow ws w' (p:e) o) s
+    East -> IHexGrid n (IHexRow (p:w) e' es o) s
+
+
+initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGrid Int
 initIHexGrid g rRange =
-  IHexGridCursor n row' s
+  IHexGrid n row' s
   where
     s0:s1:northSeeds = unfoldr (Just . uniform) g :: [Int]
     southSeeds = unfoldr (Just . uniform) $ mkStdGen s0 :: [Int]
@@ -39,9 +47,9 @@ initIHexGrid g rRange =
     s = map (\(s,off) -> initIHexRow (mkStdGen s) rRange off) $ zip southSeeds offsets
 
 
-initIHexRow :: RandomGen g => g ->  (Int,Int)-> RowOffset -> IHexRowCursor Int
+initIHexRow :: RandomGen g => g ->  (Int,Int)-> RowOffset -> IHexRow Int
 initIHexRow g1 rRange =
-  IHexRowCursor w pov' e
+  IHexRow w pov' e
   where
     seed0:eastSeed:_ = unfoldr (Just . uniform) g1 :: [Int]
     (pov', g2) = uniformR rRange $ mkStdGen seed0

@@ -7,7 +7,7 @@ import Data.List (zip, transpose, unfoldr)
 import System.Environment
 import System.Exit
 
-heroFace = 'ツ'
+
 
 data InputArgs = InputArgs {
   viewportW::Int,
@@ -37,8 +37,8 @@ parseArgs argsLen = do
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
   let gen = mkStdGen $ wSeed world1
-  let (x,y) = (div maxCols 2, div maxRows 2)
-  let grid = initIHexGrid gen (0, wSize world1)
+  let (x,y) = (div maxCols 4, div maxRows 4)
+  let grid = move West $ move West $ initIHexGrid gen (0, wSize world1)
   let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 world1
   mapM_ putStrLn $ finiteHexGrid viewPort grid
 
