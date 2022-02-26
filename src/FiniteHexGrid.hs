@@ -10,7 +10,7 @@ import Worlds
 import Colors
 import InfiniteHexGrid
 
-povMarker = CellVisuals "" '×' ""
+povMarker = CellVisuals "" '@' ""
 povBase = 100
 
 type FiniteRow = (RowOffset, [Int])
@@ -30,22 +30,24 @@ finiteHexGrid vp@(ViewPort _ _ zoom (World _ biomes))
   where
 
 finiteHexGrid' :: ViewPort -> IHexGrid Int -> [FiniteRow]
-finiteHexGrid' (ViewPort (w,h) (x,y) _ _ ) ihgCursor =
+finiteHexGrid' (ViewPort (w,h) (x,y) zoom _ ) ihgCursor =
   ns ++ [r] ++ ss
   where
-    r = finiteHexRow (w,x) povBase (row ihgCursor)
-    ns = reverse [ finiteHexRow (w,x) 0 rnC | rnC <- take y $ north ihgCursor ]
-    ss = [ finiteHexRow (w,x) 0 rsC | rsC <- take (h - y) $ south ihgCursor ]
+    chrWidth = div w zoom
+    r = finiteHexRow (chrWidth,x) povBase (row ihgCursor)
+    ns = reverse [ finiteHexRow (chrWidth,x) 0 rnC | rnC <- take y $ north ihgCursor ]
+    ss = [ finiteHexRow (chrWidth,x) 0 rsC | rsC <- take (h - y) $ south ihgCursor ]
 
 finiteHexRow :: (Int,Int) -> Int -> IHexRow Int -> FiniteRow
-finiteHexRow (width,xpos) baseVal ihrCursor =
+finiteHexRow (chrWidth,xpos) baseVal ihrCursor =
    ( offset' , w ++ [pov'] ++ e )
    where
+     povLen = 1
      offset' = offset ihrCursor
      offsetExtra = if offset' == Complete then 0 else 1
      pov' = pov ihrCursor + baseVal
      w = reverse $ take xpos $ west ihrCursor
-     e = take (width - xpos + offsetExtra) $ east ihrCursor
+     e = take ((chrWidth - povLen) - xpos + offsetExtra) $ east ihrCursor
 
 zoomRow2x :: [CellVisuals] -> FiniteRow -> String
 zoomRow2x biomes (off, x:xs) =
