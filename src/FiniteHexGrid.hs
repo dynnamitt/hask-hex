@@ -1,7 +1,5 @@
 module FiniteHexGrid(
        finiteHexGrid
-      ,world1
-      ,World(..)
       ,wSize
       ,ViewPort(..)
   ) where
@@ -42,12 +40,12 @@ finiteHexRow :: (Int,Int) -> Int -> IHexRow Int -> FiniteRow
 finiteHexRow (chrWidth,xpos) baseVal ihrCursor =
    ( offset' , w ++ [pov'] ++ e )
    where
-     povLen = 1
+     povSpc = 1
      offset' = offset ihrCursor
      offsetExtra = if offset' == Complete then 0 else 1
      pov' = pov ihrCursor + baseVal
      w = reverse $ take xpos $ west ihrCursor
-     e = take ((chrWidth - povLen) - xpos + offsetExtra) $ east ihrCursor
+     e = take ((chrWidth - povSpc) - xpos + offsetExtra) $ east ihrCursor
 
 zoomRow2x :: [CellVisuals] -> FiniteRow -> String
 zoomRow2x biomes (off, x:xs) =

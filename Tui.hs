@@ -14,7 +14,7 @@ import InfiniteHexGrid
 import System.Random (getStdGen,mkStdGen)
 import Data.List (intersperse)
 
-w' = worldMono
+w' = worldFromName worlds "mono"
 
 data ResourceName =
   ResourceName

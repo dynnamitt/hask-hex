@@ -1,6 +1,6 @@
 module Worlds(
-       world1
-      ,worldMono
+       worlds
+      ,worldFromName
       ,CellVisuals(..)
       ,World(..)
       ,wSize
@@ -21,7 +21,16 @@ data World = World {
 
 wSize bs = length (biomes bs) - 1
 
-world1 = World 11 [ CellVisuals "" '█' ""
+worlds = [("w1",w1),("mono",mono),("bi",bi)]
+
+worldFromName :: [(String,World)] -> String -> World
+worldFromName [] _ = error "OOPS, have not defined that world yet!!"
+worldFromName ((n,w):xs) name
+            | name == n = w
+            | otherwise = worldFromName xs name
+
+
+w1 = World 11 [ CellVisuals "" '█' ""
                       ,CellVisuals (fgC 3) '·' toNorm
                       ,CellVisuals "" '▒' ""
                       ,CellVisuals "" '░' ""
@@ -29,7 +38,11 @@ world1 = World 11 [ CellVisuals "" '█' ""
                       ,CellVisuals "" '▓' ""
                     ]
 
-worldMono = World 3031 [ CellVisuals "" '█' ""
+bi = World 3031 [ CellVisuals "" '█' ""
+                  ,CellVisuals "" '·' ""
+                ]
+
+mono = World 3031 [ CellVisuals "" '█' ""
                         ,CellVisuals "" '·' ""
                         ,CellVisuals "" '▒' ""
                         ,CellVisuals "" '░' ""

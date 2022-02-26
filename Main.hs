@@ -2,6 +2,7 @@ module Main where
 
 import InfiniteHexGrid
 import FiniteHexGrid
+import Worlds
 import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr)
 import System.Environment
@@ -36,10 +37,11 @@ parseArgs argsLen = do
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
-  let gen = mkStdGen $ wSeed world1
+  let w' = snd $ head worlds
+  let gen = mkStdGen $ wSeed w'
   let (x,y) = (div maxCols 4, div maxRows 4)
-  let grid = move East $ initIHexGrid gen (0, wSize world1)
-  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 world1
+  let grid = move East $ initIHexGrid gen (0, wSize w')
+  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 w'
   mapM_ putStrLn $ finiteHexGrid viewPort grid
 
 usage :: IO ()
