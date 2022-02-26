@@ -38,6 +38,18 @@ executable hask-hex
   -- hs-source-dirs:
   default-language:    Haskell2010
 
+executable hask-hex-simplex
+  main-is:             SimpleUI.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base,
+                       hask-hex,
+                       random,
+                       terminal-size,
+                       containers
+  -- hs-source-dirs:
+  default-language:    Haskell2010
+
 executable tui-hask-hex
   main-is:             Tui.hs
   -- other-modules:
