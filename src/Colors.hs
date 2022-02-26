@@ -1,17 +1,21 @@
-module Colors(fgC,bgC,toNorm )  where
-
-bg = 40
-fg = 30
+module Colors(fg16,bg16,fg256,bg256,toNorm )  where
 
 
-fgC :: Int -> String
-fgC = nixEsc . (+fg)
+fg256 :: Int -> String
+fg256 num = "\ESC[38;5;" ++ show num ++ "m"
 
-bgC :: Int -> String
-bgC = nixEsc . (+bg)
+bg256 :: Int -> String
+bg256 num = "\ESC[48;5;" ++ show num ++ "m"
+
+fg16 :: Bool -> Int -> String
+fg16 hi = nixEscSafe hi . (+30)
+
+bg16 :: Bool -> Int -> String
+bg16 hi = nixEscSafe hi . (+40)
 
 toNorm :: String
-toNorm = nixEsc 0
+toNorm = nixEscSafe False 0
 
-nixEsc :: Int -> String
-nixEsc n = "\ESC[" ++ show n ++ "m"
+nixEscSafe :: Bool -> Int -> String
+nixEscSafe False num = "\ESC[" ++ show num ++ "m"
+nixEscSafe True num = "\ESC[" ++ show num ++ ";1m"
