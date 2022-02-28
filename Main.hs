@@ -2,18 +2,19 @@ module Main where
 
 import InfiniteHexGrid
 import FiniteHexGrid
-import Worlds
+import Materials
 import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr)
 import System.Environment
 import System.Exit
 
-
-
 data InputArgs = InputArgs {
   viewportW::Int,
   viewportH::Int
 } deriving (Show)
+
+seed = 2022
+
 
 main :: IO ()
 main = do
@@ -37,11 +38,11 @@ parseArgs argsLen = do
 
 drawGrid :: Int -> Int -> IO ()
 drawGrid maxCols maxRows = do
-  let w' = snd $ head worlds
-  let gen = mkStdGen $ wSeed w'
+  let mat = snd $ head materialPacks
+  let gen = mkStdGen seed
   let (x,y) = (div maxCols 4, div maxRows 4)
-  let grid = move East $ initIHexGrid gen (0, wSize w')
-  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 w'
+  let grid = move East $ initIHexGrid gen (0,length mat - 1)
+  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 mat
   mapM_ putStrLn $ finiteHexGrid viewPort grid
 
 usage :: IO ()

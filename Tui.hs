@@ -7,14 +7,15 @@ import Brick.Types
 import Brick.Widgets.Core
 import Graphics.Vty.Input.Events
 
-import Worlds
+import Materials
 import FiniteHexGrid
 import InfiniteHexGrid
 
 import System.Random (getStdGen,mkStdGen)
 import Data.List (intersperse)
 
-w' = worldFromName worlds "mono"
+mat = fromID materialPacks "mono"
+seed = 2022
 
 data ResourceName =
   ResourceName
@@ -32,9 +33,10 @@ tuiApp =
 
 buildInitialState :: IHexGrid Int
 buildInitialState =
-  initIHexGrid gen (0, wSize w')
+  initIHexGrid gen (0, materialSpan)
   where
-    gen = mkStdGen $ wSeed w'
+    materialSpan = length mat - 1
+    gen = mkStdGen seed
 
 drawTui :: IHexGrid Int -> [Widget ()]
 drawTui grid =
@@ -42,7 +44,7 @@ drawTui grid =
     vBox $ (map str $ finiteHexGrid viewPort grid)
     ]
   where
-    viewPort = ViewPort (150, 150) (15,15) zoom w'
+    viewPort = ViewPort (150, 150) (15,15) zoom mat
     zoom = 2
 
 handleTuiEvent :: IHexGrid Int -> BrickEvent n e -> EventM n (Next (IHexGrid Int))

@@ -19,7 +19,7 @@ library
   exposed-modules:     Colors
                        InfiniteHexGrid
                        FiniteHexGrid
-                       Worlds
+                       Materials
   -- other-modules:
   -- other-extensions:
   build-depends:       base,
