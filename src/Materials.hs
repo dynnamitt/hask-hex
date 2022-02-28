@@ -14,10 +14,13 @@ module Materials(
 import Colors
 
 data ASCIIRepr = ASCIIRepr {
-   escBefore::String
-  ,cellChar ::Char
-  ,escAfter ::String
+   escBefore:: String
+  ,cellChar :: Char
+  ,altChars :: (Char,Char)
+  ,escAfter :: String
 } deriving (Show,Eq,Ord)
+
+alts = ('ª', '₀')
 
 type Material = [ASCIIRepr]
 
@@ -38,48 +41,47 @@ fromID ((n,w):xs) name
             | name == n = w
             | otherwise = fromID xs name
 
+col16 = [ ASCIIRepr (bg16 True x) '░' alts toNorm | x <- [0..7] ]
 
-col16 = [ ASCIIRepr (bg16 True x) '░' toNorm | x <- [0..7] ]
-
-col256 = [ ASCIIRepr ((fg16 False 0) <> (bg256 x)) c toNorm
+col256 = [ ASCIIRepr ((fg16 False 0) <> (bg256 x)) c alts toNorm
                     | (x,c) <- zip [8..255] $ cycle ":x#+,-" ]
 
-w1 =  [ ASCIIRepr "" '█' ""
-        ,ASCIIRepr (fg16 True 3) '·' toNorm
-        ,ASCIIRepr "" '▒' ""
-        ,ASCIIRepr "" '▒' ""
-        ,ASCIIRepr (fg16 False 4) '·' toNorm
-        ,ASCIIRepr "" '▓' ""
+w1 =  [ ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr (fg16 True 3) '·' alts toNorm
+        ,ASCIIRepr "" '▒' alts ""
+        ,ASCIIRepr "" '▒' alts ""
+        ,ASCIIRepr (fg16 False 4) '·' alts toNorm
+        ,ASCIIRepr "" '▓' alts ""
       ]
 
-bi = [ ASCIIRepr "" '█' ""
-      ,ASCIIRepr "" '·' ""
+bi = [ ASCIIRepr "" '█' alts ""
+      ,ASCIIRepr "" '·' alts ""
     ]
 
-bi2 = [ ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '·' ""
-        ,ASCIIRepr "" '·' ""
+bi2 = [ ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '·' alts ""
+        ,ASCIIRepr "" '·' alts ""
     ]
 
-bi3 = [ ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '·' ""
-        ,ASCIIRepr "" '·' ""
-        ,ASCIIRepr "" '·' ""
+bi3 = [ ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '·' alts ""
+        ,ASCIIRepr "" '·' alts ""
+        ,ASCIIRepr "" '·' alts ""
     ]
 
-bi4 = [ ASCIIRepr "" '-' ""
-        ,ASCIIRepr "" '!' ""
-        ,ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '█' ""
+bi4 = [ ASCIIRepr "" '-' alts ""
+        ,ASCIIRepr "" '!' alts ""
+        ,ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '█' alts ""
     ]
 
-mono = [ ASCIIRepr "" '█' ""
-        ,ASCIIRepr "" '·' ""
-        ,ASCIIRepr "" '▒' ""
-        ,ASCIIRepr "" '░' ""
-        ,ASCIIRepr "" '·' ""
-        ,ASCIIRepr "" '▓' ""
+mono = [ ASCIIRepr "" '█' alts ""
+        ,ASCIIRepr "" '·' alts ""
+        ,ASCIIRepr "" '▒' alts ""
+        ,ASCIIRepr "" '░' alts ""
+        ,ASCIIRepr "" '·' alts ""
+        ,ASCIIRepr "" '▓' alts ""
     ]
