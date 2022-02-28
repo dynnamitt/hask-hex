@@ -9,17 +9,17 @@ import System.Environment
 import System.Exit
 
 data InputArgs = InputArgs {
-  viewportW::Int,
-  viewportH::Int
+  viewportW ::Int,
+  viewportH ::Int,
+  argZoom   ::Int
 } deriving (Show)
 
 seed = 2022
 
-
 main :: IO ()
 main = do
-  args' <- parseArgs 2
-  drawGrid (viewportW args') (viewportH args')
+  args' <- parseArgs 3
+  drawGrid (viewportW args') (viewportH args') (argZoom args')
 
 -- args or death
 parseArgs :: Int -> IO InputArgs
@@ -34,15 +34,16 @@ parseArgs argsLen = do
       return InputArgs {
         viewportW = read $ head args
       , viewportH = read $ args !! 1
+      , argZoom = read $ args !! 2
      }
 
-drawGrid :: Int -> Int -> IO ()
-drawGrid maxCols maxRows = do
+drawGrid :: Int -> Int -> Int -> IO ()
+drawGrid maxCols maxRows zoom = do
   let mat = snd $ head materialPacks
   let gen = mkStdGen seed
   let (x,y) = (div maxCols 4, div maxRows 4)
   let grid = move East $ initIHexGrid gen (0,length mat - 1)
-  let viewPort = ViewPort (maxCols,maxRows) (x,y) 2 mat
+  let viewPort = ViewPort (maxCols,maxRows) (x,y) zoom mat
   mapM_ putStrLn $ finiteHexGrid viewPort grid
 
 usage :: IO ()

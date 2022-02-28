@@ -1,7 +1,6 @@
 module FiniteHexGrid(
        finiteHexGrid
       ,ViewPort(..)
-      ,zoomRow3x
   ) where
 
 import Materials
@@ -25,7 +24,7 @@ data ViewPort = ViewPort {
 finiteHexGrid ::  ViewPort -> IHexGrid Int -> [String]
 finiteHexGrid vp@(ViewPort _ _ zoom mat)
   | zoom == 2 = map (zoomRow2x mat) . finiteHexGrid' vp
-  | zoom == 3 = error "OMG"
+  | zoom == 8 = map (zoomRow8x mat . maybeTail ) . finiteHexGrid' vp
   | otherwise = error "Not an option!"
 
 finiteHexGrid' :: ViewPort -> IHexGrid Int -> [FiniteRow]
@@ -68,11 +67,14 @@ boxyCell mat zoomY x =
   where
     repr = reprMatch mat x
 
--- 3x Zoom
--- TODO use init if CappedEnds
-zoomRow3x :: Material -> FiniteRow -> String
-zoomRow3x mat (off, x:[]) = tinyHalfCell mat off x
-zoomRow3x mat (off, x:xs) = tinyHalfCell mat off x ++ zoomRow3x mat (off,xs)
+-- 8x Zoom
+zoomRow8x :: Material -> FiniteRow -> String
+zoomRow8x mat (off, x:[]) = tinyHalfCell mat off x
+zoomRow8x mat (off, x:xs) = tinyHalfCell mat off x ++ zoomRow8x mat (off,xs)
+
+maybeTail :: FiniteRow -> FiniteRow
+maybeTail (CappedEnds,x:xs) = (CappedEnds,xs)
+maybeTail x = x
 
 -- /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /
 --   ! /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /
