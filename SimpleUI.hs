@@ -11,26 +11,29 @@ import qualified System.Console.Terminal.Size as TS
 
 main :: IO ()
 main = do
-  matID <- parseArgs 1
+  (matID,zoom) <- parseArgs 2
   win <- TS.size
   let seed = 2022
-  drawGrid ( fromJust win ) matID seed
+  drawGrid ( fromJust win ) matID seed zoom
 
--- args or death
-parseArgs :: Int -> IO Material
+-- args
+parseArgs :: Int -> IO (Material,Int)
 parseArgs argsLen = do
   args <- getArgs
   if length args < argsLen
     then do
-      return $ snd $ head materialPacks -- just pick the head
+      let mat = snd $ head materialPacks -- just pick the head
+      return (mat,2)
     else do
-      return $ fromID materialPacks $ head args
+      let mat = fromID materialPacks $ head args
+      let zoom = read . head . tail $ args
+      return (mat,zoom)
 
-drawGrid :: TS.Window Int -> Material -> Int -> IO ()
-drawGrid (TS.Window h w) mat seed = do
+drawGrid :: TS.Window Int -> Material -> Int -> Int -> IO ()
+drawGrid (TS.Window h w) mat seed zoom = do
   let gen = mkStdGen seed
   let materialSpan = length mat - 1
-  let (x,y) = (div w 4, div h 4)
+  let (x,y) = (5, 5)
   let grid = initIHexGrid gen (0, materialSpan)
-  let viewPort = ViewPort (w ,h) (x,y) 2 mat
+  let viewPort = ViewPort (w ,h) (x,y) zoom mat
   mapM_ putStrLn $ finiteHexGrid viewPort grid

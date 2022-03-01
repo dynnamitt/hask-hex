@@ -24,7 +24,7 @@ data ViewPort = ViewPort {
 finiteHexGrid ::  ViewPort -> IHexGrid Int -> [String]
 finiteHexGrid vp@(ViewPort _ _ zoom mat)
   | zoom == 2 = map (zoomRow2x mat) . finiteHexGrid' vp
-  | zoom == 8 = map (zoomRow8x mat . maybeTail ) . finiteHexGrid' vp
+  | zoom == 8 = map (zoomRow8x mat) . finiteHexGrid' vp
   | otherwise = error "Not an option!"
 
 finiteHexGrid' :: ViewPort -> IHexGrid Int -> [FiniteRow]
@@ -63,9 +63,11 @@ zoomRow2x mat (off, x:xs) =
 
 boxyCell :: Material -> Int -> Int -> [Char]
 boxyCell mat zoomY x =
-  escBefore repr ++ replicate zoomY (cellChar repr) ++ escAfter repr
+  escBefore repr ++ rc ++ escAfter repr
   where
     repr = reprMatch mat x
+    rc = padd ++ (cellChar repr):[]
+    padd = replicate (zoomY - 1) ' '
 
 -- 8x Zoom
 zoomRow8x :: Material -> FiniteRow -> String
@@ -80,7 +82,7 @@ maybeTail x = x
 --   ! /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /
 tinyHalfCell :: Material -> RowOffset -> Int -> String
 tinyHalfCell mat off x
-  | off == Complete = "¯\\ " ++ rc ++ " /¯ "
-  | otherwise = " /¯ ¯\\ " ++ rc
+  | off == Complete = " ¯\\ " ++ rc ++ " /¯"
+  | otherwise = rc ++ " /¯ ¯\\ "
   where
     rc = (:[]) . cellChar . reprMatch mat $ x

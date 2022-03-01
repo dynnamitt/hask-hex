@@ -20,8 +20,6 @@ library
                        InfiniteHexGrid
                        FiniteHexGrid
                        Materials
-  -- other-modules:
-  -- other-extensions:
   build-depends:       base,
                        random
   hs-source-dirs:      src
@@ -29,31 +27,29 @@ library
 
 executable hask-hex
   main-is:             Main.hs
-  -- other-modules:
-  -- other-extensions:
   build-depends:       base,
                        hask-hex,
                        random,
                        containers
-  -- hs-source-dirs:
   default-language:    Haskell2010
+
+executable term-inf
+  main-is:             TermInf.hs
+  build-depends:       base,
+                       hask-hex,
+                       terminal-size
 
 executable hask-hex-simplex
   main-is:             SimpleUI.hs
-  -- other-modules:
-  -- other-extensions:
   build-depends:       base,
                        hask-hex,
                        random,
                        terminal-size,
                        containers
-  -- hs-source-dirs:
   default-language:    Haskell2010
 
 executable tui-hask-hex
   main-is:             Tui.hs
-  -- other-modules:
-  -- other-extensions:
   build-depends:       base,
                        hask-hex,
                        brick,
