@@ -30,6 +30,8 @@ ranges = [
     ,([0x1F00..0x1FFF],"Greek Extended")
     ,([0x2000..0x206F],"General Punctuation")
     ,([0x2070..0x209F],"Superscripts+ Subscripts")
+    ,([0x20A0..0x20CF],"Currency sym")
+    ,([0x2100..0x214F],"Letterlike Symbols")
     -- COL 2
     ,([0x2580..0x259F],"Block Elems")
     ,([0x25A0..0x25FF],"Geometric Shapes")

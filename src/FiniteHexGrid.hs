@@ -84,7 +84,7 @@ dropLastCap r@(_,_) = r
 --   ! /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /
 tinyHalfCell :: Material -> RowOffset -> Int -> String
 tinyHalfCell mat off x
-  | off == Complete = " ¯\\ " ++ rc ++ " /¯"
-  | otherwise = rc ++ " /¯ ¯\\ "
+  | off == Complete = " ▔▚ " ++ rc ++ " ▞▔"
+  | otherwise = rc ++ " ▞▔ ▔▚ "
   where
     rc = (:[]) . cellChar . reprMatch mat $ x
