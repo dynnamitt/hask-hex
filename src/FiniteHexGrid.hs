@@ -24,7 +24,7 @@ data ViewPort = ViewPort {
 finiteHexGrid ::  ViewPort -> IHexGrid Int -> [String]
 finiteHexGrid vp@(ViewPort _ _ zoom mat)
   | zoom == 2 = map (zoomRow2x mat) . finiteHexGrid' vp
-  | zoom == 8 = map (zoomRow8x mat) . finiteHexGrid' vp
+  | zoom == 8 = map (zoomRow8x mat . dropLastCap) . finiteHexGrid' vp
   | otherwise = error "Not an option!"
 
 finiteHexGrid' :: ViewPort -> IHexGrid Int -> [FiniteRow]
@@ -74,9 +74,11 @@ zoomRow8x :: Material -> FiniteRow -> String
 zoomRow8x mat (off, x:[]) = tinyHalfCell mat off x
 zoomRow8x mat (off, x:xs) = tinyHalfCell mat off x ++ zoomRow8x mat (off,xs)
 
-maybeTail :: FiniteRow -> FiniteRow
-maybeTail (CappedEnds,x:xs) = (CappedEnds,xs)
-maybeTail x = x
+
+dropLastCap :: FiniteRow -> FiniteRow
+dropLastCap (CappedEnds,xs) = (CappedEnds,init xs)
+dropLastCap r@(_,_) = r
+
 
 -- /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /
 --   ! /¯ ¯\ : /¯ ¯\ # /¯ ¯\ + /¯ ¯\ x /¯ ¯\ # /¯ ¯\ + /

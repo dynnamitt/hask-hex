@@ -45,7 +45,7 @@ drawTui grid =
     ]
   where
     viewPort = ViewPort (150, 150) (15,15) zoom mat
-    zoom = 2
+    zoom = 8
 
 handleTuiEvent :: IHexGrid Int -> BrickEvent n e -> EventM n (Next (IHexGrid Int))
 handleTuiEvent state (VtyEvent vtye) =
