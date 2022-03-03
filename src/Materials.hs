@@ -89,7 +89,7 @@ mono = [ ASCIIRepr "" '█' alts ""
 
 mono2 = [ ASCIIRepr "" '♉' alts ""
           ,ASCIIRepr "" '·' alts ""
-          ,ASCIIRepr "" '⎔' alts ""
+          ,ASCIIRepr "" '▃' alts ""
           ,ASCIIRepr "" '∎' alts ""
           ,ASCIIRepr "" '·' alts ""
           ,ASCIIRepr "" '♒' alts ""

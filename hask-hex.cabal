@@ -20,6 +20,7 @@ library
                        InfiniteHexGrid
                        FiniteHexGrid
                        Materials
+                       Utils
   build-depends:       base,
                        random
   hs-source-dirs:      src
@@ -36,6 +37,7 @@ executable hask-hex
 executable term-inf
   main-is:             TermInf.hs
   build-depends:       base,
+                       text,
                        hask-hex,
                        terminal-size
 

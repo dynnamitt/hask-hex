@@ -14,7 +14,7 @@ import InfiniteHexGrid
 import System.Random (getStdGen,mkStdGen)
 import Data.List (intersperse)
 
-mat = fromID materialPacks "mono"
+mat = fromID materialPacks "mono2"
 seed = 2022
 
 data ResourceName =
