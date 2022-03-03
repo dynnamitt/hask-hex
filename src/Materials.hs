@@ -29,6 +29,7 @@ materialPacks = [
   ("16",col16),
   ("w1",w1),
   ("mono",mono),
+  ("mono2",mono2),
   ("bi",bi),
   ("bi2",bi2),
   ("bi3",bi3),
@@ -84,4 +85,12 @@ mono = [ ASCIIRepr "" '█' alts ""
         ,ASCIIRepr "" '░' alts ""
         ,ASCIIRepr "" '·' alts ""
         ,ASCIIRepr "" '▓' alts ""
+    ]
+
+mono2 = [ ASCIIRepr "" '♉' alts ""
+          ,ASCIIRepr "" '·' alts ""
+          ,ASCIIRepr "" '⎔' alts ""
+          ,ASCIIRepr "" '∎' alts ""
+          ,ASCIIRepr "" '·' alts ""
+          ,ASCIIRepr "" '♒' alts ""
     ]
