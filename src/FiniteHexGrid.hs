@@ -4,7 +4,7 @@ module FiniteHexGrid(
   ) where
 
 import Materials
-import Colors
+import Utils
 import InfiniteHexGrid
 import Text.Printf
 

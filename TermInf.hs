@@ -2,7 +2,6 @@
 
 module Main where
 
-import Colors
 import Text.Printf
 import Data.Maybe
 import Data.Char

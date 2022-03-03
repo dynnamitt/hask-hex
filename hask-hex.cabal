@@ -16,8 +16,7 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
 library
-  exposed-modules:     Colors
-                       InfiniteHexGrid
+  exposed-modules:     InfiniteHexGrid
                        FiniteHexGrid
                        Materials
                        Utils

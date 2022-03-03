@@ -11,7 +11,7 @@ module Materials(
  --  \           /
  --    . _____  .
 
-import Colors
+import Utils
 
 data ASCIIRepr = ASCIIRepr {
    escBefore:: String
