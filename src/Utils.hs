@@ -8,7 +8,7 @@ module Utils (
     ,toNorm
   ) where
 
-frac :: (Integral a, Fractional b) => a -> a -> b
+frac :: (Integral a) => a -> a -> Double
 frac m n = fromIntegral (n `mod` m) / fromIntegral m
 
 replace :: Eq a => [a] -> [a] -> [a] -> [a]
