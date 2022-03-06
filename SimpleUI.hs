@@ -14,24 +14,19 @@ import qualified System.Console.Terminal.Size as TS
 
 main :: IO ()
 main = do
-  (matID, zoom) <- parseArgs 2
+  zoom <- parseArgs
   win <- TS.size
   plotGrid ( fromJust win ) zoom
 
 -- args
-parseArgs :: Int -> IO (Material,Int)
-parseArgs argsLen = do
+parseArgs :: IO Int
+parseArgs = do
   args <- getArgs
-  if length args < argsLen
-    then do
-      let mat = snd $ head materialPacks -- just pick the head
-      return (mat,2)
-    else do
-      let mat = fromID materialPacks $ head args
-      let zoom = read . head . tail $ args
-      return (mat,zoom)
+  if null args
+    then return 2
+    else return $ read . head $ args
 
-grayScales = (232,255)
+
 max' = 9_000 :: Int
 seed = 2_023
 
@@ -41,7 +36,9 @@ plotGrid (TS.Window h w) zoom = do
   let iGrid = initIHexGrid gen (0, max')
   let dim' = dim (w,h) zoom
   let fGrid = twoDimNoise dim' (0,0) iGrid
-  mapM_ putStrLn $ map (plotPixel zoom) fGrid
+  mapM_ putStrLn $ hZoom zoom $ map (plotPixel zoom) fGrid
+  putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", dim':" <> show dim'
+
 
 plotPixel :: Int -> [Int] -> String
 plotPixel zoom xs =
@@ -49,9 +46,13 @@ plotPixel zoom xs =
   where
     pixel c = bg256 c ++ replicate zoom ' ' ++ toNorm
     colors = map f' xs
-    f' = (+grayBase) . round . (*grayLen) . frac max'
-    grayLen = fromIntegral $ (snd grayScales) - grayBase
-    grayBase = fst grayScales
+    f' = (+cBase) . round . (*cLen) . frac max'
+    cLen = fromIntegral $ length grayscale -1
+    cBase = head grayscale
+
+hZoom :: Int -> [String] -> [String]
+hZoom z (x:[]) = replicate (z `div` 2) x
+hZoom z (x:xs) = replicate (z `div` 2) x ++ hZoom z xs
 
 dim :: (Int,Int) -> Int -> (Int,Int)
 dim (w,h) zoom = (w `div` zoom, h `div` (zoom `div` 2))
