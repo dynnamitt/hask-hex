@@ -39,8 +39,8 @@ move dir (IHexGrid n@(n':ns) r s@(s':ss)) =
 moveRows :: Direction -> [IHexRow a] -> [IHexRow a]
 moveRows dir (x:xs) =
   case dir of
-    West -> (moveRowWest x):moveRows dir xs
-    East -> (moveRowEast x):moveRows dir xs
+    West -> moveRowWest x:moveRows dir xs
+    East -> moveRowEast x:moveRows dir xs
 
 moveRowWest :: IHexRow a -> IHexRow a
 moveRowWest (IHexRow w@(w':ws) p e@(e':es) o) =

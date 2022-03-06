@@ -9,19 +9,11 @@ module FiniteHexGrid(
 import Materials
 import Utils
 import InfiniteHexGrid
-import Text.Printf
 
 povMarker = ASCIIRepr "" '@' ('x','x') ""
 povBase = 100
 
 type FiniteRow = (RowOffset, [Int])
-
-data ViewPort = ViewPort {
-   size :: (Int,Int)
-  ,povCoords :: (Int,Int)
-  ,zoom :: Int
-  ,material :: Material
-} deriving (Show)
 
 twoDimNoise :: (Int,Int) -> (Int,Int) -> IHexGrid Int -> [[Int]]
 twoDimNoise (w,h) (x,y) ihg =
@@ -36,12 +28,18 @@ oneDimNoise :: (Int,Int) -> IHexRow Int -> [Int]
 oneDimNoise (len,xpos) ihr =
   take len $ w ++ pov' ++ e
   where
-    pov' = if xpos > 0 then [] else [(-pov ihr)] -- [pov ihr]
+    pov' = if xpos > 0 then [] else [pov ihr]
     e = if xpos > 0
         then drop (xpos-1) $ east ihr
         else east ihr
     w = reverse . take (-xpos) $ west ihr
 
+data ViewPort = ViewPort {
+   size :: (Int,Int)
+  ,povCoords :: (Int,Int)
+  ,zoom :: Int
+  ,material :: Material
+} deriving (Show)
 
 finiteHexGridZ ::  ViewPort -> IHexGrid Int -> [String]
 finiteHexGridZ vp@(ViewPort _ _ zoom mat)
