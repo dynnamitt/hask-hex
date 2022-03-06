@@ -41,7 +41,7 @@ buildInitialState =
 drawTui :: IHexGrid Int -> [Widget ()]
 drawTui grid =
   [ borderWithLabel (str " [q]uit | wasd ") $
-    vBox $ (map str $ finiteHexGrid viewPort grid)
+    vBox $ (map str $ finiteHexGridZ viewPort grid)
     ]
   where
     viewPort = ViewPort (150, 150) (15,15) zoom mat

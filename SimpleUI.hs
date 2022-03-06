@@ -36,4 +36,4 @@ drawGrid (TS.Window h w) mat seed zoom = do
   let (x,y) = (5, 5)
   let grid = initIHexGrid gen (0, materialSpan)
   let viewPort = ViewPort (w ,h) (x,y) zoom mat
-  mapM_ putStrLn $ finiteHexGrid viewPort grid
+  mapM_ putStrLn $ finiteHexGridZ viewPort grid
