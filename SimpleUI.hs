@@ -9,7 +9,7 @@ import FiniteHexGrid
 import Materials
 import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr, intercalate)
-import qualified Data.Vector as DV
+import qualified Data.Vector as V
 import System.Environment
 import qualified System.Console.Terminal.Size as TS
 
@@ -38,17 +38,18 @@ plotGrid (TS.Window h w) zoom = do
   --let dim' = dim (w,h) zoom
   let fGrid = twoDimNoise (w,h) (0,0) iGrid
   --mapM_ putStrLn $ hZoom zoom $ map (plotPixel zoom) fGrid
-  mapM_ putStrLn $ map (plotPixel 1) (fracZoom zoom fGrid)
+  mapM_ putStrLn $ V.map plotPixel (fracZoom zoom fGrid)
 
   --putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", dim':" <> show dim'
 
 
-plotPixel :: Int -> [Int] -> String
-plotPixel zoom xs =
-  intercalate "" $ map pixel colors
+plotPixel :: V.Vector Int -> String
+plotPixel xs =
+  V.foldl join "" $ V.map pixel colors
   where
-    pixel c = bg256 c ++ replicate zoom ' ' ++ toNorm
-    colors = map f' xs
+    join acc x = acc <> x
+    pixel c = bg256 c ++ " " ++ toNorm
+    colors = V.map f' xs
     f' = (+cBase) . round . (*cLen) . frac max'
     cLen = fromIntegral $ length grayscale -1
     cBase = head grayscale

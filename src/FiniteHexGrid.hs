@@ -10,35 +10,40 @@ module FiniteHexGrid(
 import Materials
 import Utils
 import InfiniteHexGrid
-import qualified Data.Vector as DV
+import qualified Data.Vector as V
 
 
 povMarker = ASCIIRepr "" '@' ('x','x') ""
 povBase = 100
 
 type FiniteRow = (RowOffset, [Int])
+type VGrid a = V.Vector (V.Vector a)
 
 -- works nice w odd numbers
-fracZoom :: Int -> [[Int]] -> [[Int]]
+fracZoom :: Int -> VGrid a -> VGrid a
 fracZoom z row =
-  [[ (row !! fracDivideWrap y) !! fracDivideWrap x | x <- [0..length (head row) - 1] ]
-    | y <- [0..length row - 1] ]
+  -- TODO use V.map
+  V.fromList [ V.fromList [
+   (row V.! fracDivideWrap zy' y) V.! fracDivideWrap zx' x
+    | x <- [0 .. V.length (V.head row) - 1] ]
+    | y <- [0 .. V.length row - 1] ]
   where
-    z' = fromIntegral z
-    fracDivideWrap = floor . (/z') . fromIntegral
+    zx' = fromIntegral z
+    zy' = fromIntegral $ z `div` 2
+    fracDivideWrap z = floor . (/z) . fromIntegral
 
-twoDimNoise :: (Int,Int) -> (Int,Int) -> IHexGrid Int -> [[Int]]
+twoDimNoise :: (Int,Int) -> (Int,Int) -> IHexGrid a -> VGrid a
 twoDimNoise (w,h) (x,y) ihg =
-  take h $ ns ++ r ++ ss
+  V.take h $ V.fromList $ ns ++ r ++ ss'
   where
     r = if y > 0 then [] else [oneDimNoise (w,x) $ row ihg]
     ss' = if y > 0 then drop (y-1) ss else ss
     ss = [ oneDimNoise (w,x) s | s <- south ihg ]
     ns = reverse . take (-y) $ [ oneDimNoise (w,x) n | n <- north ihg ]
 
-oneDimNoise :: (Int,Int) -> IHexRow Int -> [Int]
+oneDimNoise :: (Int,Int) -> IHexRow a -> V.Vector a
 oneDimNoise (len,xpos) ihr =
-  take len $ w ++ pov' ++ e
+  V.take len $ V.fromList $ w ++ pov' ++ e
   where
     pov' = if xpos > 0 then [] else [pov ihr]
     e = if xpos > 0
