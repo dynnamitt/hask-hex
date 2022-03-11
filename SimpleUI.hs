@@ -9,6 +9,7 @@ import FiniteHexGrid
 import Materials
 import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr, intercalate)
+import qualified Data.Vector as DV
 import System.Environment
 import qualified System.Console.Terminal.Size as TS
 
@@ -34,10 +35,12 @@ plotGrid :: TS.Window Int -> Int -> IO ()
 plotGrid (TS.Window h w) zoom = do
   let gen = mkStdGen seed
   let iGrid = initIHexGrid gen (0, max')
-  let dim' = dim (w,h) zoom
-  let fGrid = twoDimNoise dim' (0,0) iGrid
-  mapM_ putStrLn $ hZoom zoom $ map (plotPixel zoom) fGrid
-  putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", dim':" <> show dim'
+  --let dim' = dim (w,h) zoom
+  let fGrid = twoDimNoise (w,h) (0,0) iGrid
+  --mapM_ putStrLn $ hZoom zoom $ map (plotPixel zoom) fGrid
+  mapM_ putStrLn $ map (plotPixel 1) (fracZoom zoom fGrid)
+
+  --putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", dim':" <> show dim'
 
 
 plotPixel :: Int -> [Int] -> String

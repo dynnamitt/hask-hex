@@ -3,17 +3,29 @@ module FiniteHexGrid(
   ,finiteHexGrid
   ,oneDimNoise
   ,twoDimNoise
+  ,fracZoom
   ,ViewPort(..)
   ) where
 
 import Materials
 import Utils
 import InfiniteHexGrid
+import qualified Data.Vector as DV
+
 
 povMarker = ASCIIRepr "" '@' ('x','x') ""
 povBase = 100
 
 type FiniteRow = (RowOffset, [Int])
+
+-- works nice w odd numbers
+fracZoom :: Int -> [[Int]] -> [[Int]]
+fracZoom z row =
+  [[ (row !! fracDivideWrap y) !! fracDivideWrap x | x <- [0..length (head row) - 1] ]
+    | y <- [0..length row - 1] ]
+  where
+    z' = fromIntegral z
+    fracDivideWrap = floor . (/z') . fromIntegral
 
 twoDimNoise :: (Int,Int) -> (Int,Int) -> IHexGrid Int -> [[Int]]
 twoDimNoise (w,h) (x,y) ihg =

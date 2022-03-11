@@ -14,7 +14,7 @@ import InfiniteHexGrid
 import System.Random (getStdGen,mkStdGen)
 import Data.List (intersperse)
 
-mat = fromID materialPacks "mono2"
+mat = fromID materialPacks "mono"
 seed = 2022
 
 data ResourceName =
@@ -44,8 +44,8 @@ drawTui grid =
     vBox $ (map str $ finiteHexGridZ viewPort grid)
     ]
   where
-    viewPort = ViewPort (150, 150) (15,15) zoom mat
-    zoom = 8
+    viewPort = ViewPort (150, 150) (15,15) _zoom mat
+    _zoom = 2
 
 handleTuiEvent :: IHexGrid Int -> BrickEvent n e -> EventM n (Next (IHexGrid Int))
 handleTuiEvent state (VtyEvent vtye) =
