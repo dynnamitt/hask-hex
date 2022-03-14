@@ -18,6 +18,7 @@ extra-source-files:  CHANGELOG.md
 library
   exposed-modules:     InfiniteHexGrid
                        FiniteHexGrid
+                       VectorGridPattern
                        Materials
                        Utils
   build-depends:       base,

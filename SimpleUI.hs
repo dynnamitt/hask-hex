@@ -5,7 +5,7 @@ module Main where
 import InfiniteHexGrid
 import Data.Maybe
 import Utils
-import FiniteHexGrid
+import VectorGridPattern
 import Materials
 import System.Random (getStdGen,mkStdGen)
 import Data.List (zip, transpose, unfoldr, intercalate)
