@@ -28,29 +28,27 @@ parseArgs = do
     else return $ read . head $ args
 
 
-max' = 9_000 :: Int
+hi = 9_000 :: Int
 seed = 2_023
 
 plotGrid :: TS.Window Int -> Int -> IO ()
 plotGrid (TS.Window h w) zoom = do
   let gen = mkStdGen seed
-  let iGrid = initIHexGrid gen (0, max')
-  --let dim' = dim (w,h) zoom
+  let iGrid = initIHexGrid gen (0, hi)
   let fGrid = twoDimNoise (w,h) (0,0) iGrid
-  --mapM_ putStrLn $ hZoom zoom $ map (plotPixel zoom) fGrid
-  mapM_ putStrLn $ V.map plotPixel (fracZoom zoom fGrid)
-
-  --putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", dim':" <> show dim'
+  putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", w:" <> show w
+  mapM_ putStrLn $ V.map plotPixel (fracZoom zoom smooth fGrid)
 
 
-plotPixel :: V.Vector Int -> String
+
+plotPixel :: RealFrac a => V.Vector a -> String
 plotPixel xs =
   V.foldl join "" $ V.map pixel colors
   where
     join acc x = acc <> x
     pixel c = bg256 c ++ " " ++ toNorm
     colors = V.map f' xs
-    f' = (+cBase) . round . (*cLen) . frac max'
+    f' = (+cBase) . round . (*cLen)
     cLen = fromIntegral $ length grayscale -1
     cBase = head grayscale
 

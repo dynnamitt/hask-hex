@@ -21,13 +21,13 @@ data ViewPort = ViewPort {
   ,material :: Material
 } deriving (Show)
 
-finiteHexGridZ ::  ViewPort -> IHexGrid Int -> [String]
+finiteHexGridZ ::  ViewPort -> IHexGrid a -> [String]
 finiteHexGridZ vp@(ViewPort _ _ zoom mat)
   | zoom == 2 = map (zoomRow2x mat . dropEndOverflow) . finiteHexGrid vp
   | zoom == 8 = map (hexCellWide8 mat . dropEndOverflow) . finiteHexGrid vp
   | otherwise = error "Not an option!"
 
-finiteHexGrid :: ViewPort -> IHexGrid Int -> [FiniteRow]
+finiteHexGrid :: ViewPort -> IHexGrid a -> [FiniteRow]
 finiteHexGrid (ViewPort (w,h) (x,y) zoom _ ) ihg =
   ns ++ [r] ++ ss
   where
@@ -37,7 +37,7 @@ finiteHexGrid (ViewPort (w,h) (x,y) zoom _ ) ihg =
     ns = reverse [ finiteHexRow (chrWidth,x) 0 rnC | rnC <- take y $ north ihg ]
     ss = [ finiteHexRow (chrWidth,x) 0 rsC | rsC <- take (h - y) $ south ihg ]
 
-finiteHexRow :: (Int,Int) -> Int -> IHexRow Int -> FiniteRow
+finiteHexRow :: (Int,Int) -> Int -> IHexRow a -> FiniteRow
 finiteHexRow (chrWidth,xpos) baseVal ihr =
    ( offset' , w ++ [pov'] ++ e )
    where

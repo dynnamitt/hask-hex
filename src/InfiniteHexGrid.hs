@@ -8,6 +8,7 @@ module InfiniteHexGrid(
   ) where
 
 import Data.List (unfoldr)
+import Utils
 import System.Random (
   RandomGen, uniform, uniformR, mkStdGen)
 
@@ -51,7 +52,7 @@ moveRowEast (IHexRow w@(w':ws) p e@(e':es) o) =
   IHexRow (p:w) e' es o
 
 
-initIHexGrid :: RandomGen g => g -> (Int,Int)-> IHexGrid Int
+initIHexGrid :: (RealFrac a,RandomGen g) => g -> (Int,Int)-> IHexGrid a
 initIHexGrid g rRange =
   IHexGrid n row' s
   where
@@ -63,11 +64,11 @@ initIHexGrid g rRange =
     s = map (\(s,off) -> initIHexRow (mkStdGen s) rRange off) $ zip southSeeds offsets
 
 
-initIHexRow :: RandomGen g => g ->  (Int,Int)-> RowOffset -> IHexRow Int
-initIHexRow g1 rRange =
-  IHexRow w pov' e
+initIHexRow :: (RealFrac a,RandomGen g) => g ->  (Int,Int) -> RowOffset -> IHexRow a
+initIHexRow g1 rRange@(_,hi) =
+  IHexRow w (frac hi pov') e
   where
     seed0:eastSeed:_ = unfoldr (Just . uniform) g1 :: [Int]
     (pov', g2) = uniformR rRange $ mkStdGen seed0
-    w = unfoldr (Just . uniformR rRange) g2
-    e = unfoldr (Just . uniformR rRange) $ mkStdGen eastSeed
+    w = map (frac hi) $ unfoldr (Just . uniformR rRange) g2
+    e = map (frac hi) $ unfoldr (Just . uniformR rRange) $ mkStdGen eastSeed

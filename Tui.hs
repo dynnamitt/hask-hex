@@ -21,7 +21,7 @@ data ResourceName =
   ResourceName
   deriving (Show, Eq, Ord)
 
-tuiApp :: App (IHexGrid Int) e ()
+tuiApp :: App (IHexGrid a) e ()
 tuiApp =
   App
     { appDraw = drawTui
@@ -31,14 +31,14 @@ tuiApp =
     , appAttrMap = const $ attrMap mempty []
     }
 
-buildInitialState :: IHexGrid Int
+buildInitialState :: (RealFrac a) => IHexGrid a
 buildInitialState =
   initIHexGrid gen (0, materialSpan)
   where
     materialSpan = length mat - 1
     gen = mkStdGen seed
 
-drawTui :: IHexGrid Int -> [Widget ()]
+drawTui :: IHexGrid a -> [Widget ()]
 drawTui grid =
   [ borderWithLabel (str " [q]uit | wasd ") $
     vBox $ (map str $ finiteHexGridZ viewPort grid)
@@ -47,7 +47,7 @@ drawTui grid =
     viewPort = ViewPort (150, 150) (15,15) _zoom mat
     _zoom = 2
 
-handleTuiEvent :: IHexGrid Int -> BrickEvent n e -> EventM n (Next (IHexGrid Int))
+handleTuiEvent :: IHexGrid a -> BrickEvent n e -> EventM n (Next (IHexGrid a))
 handleTuiEvent state (VtyEvent vtye) =
     case vtye of
       EvKey (KChar 'q') [] -> halt state
