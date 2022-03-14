@@ -40,7 +40,6 @@ plotGrid (TS.Window h w) zoom = do
   mapM_ putStrLn $ V.map plotPixel (fracZoom zoom smooth fGrid)
 
 
-
 plotPixel :: RealFrac a => V.Vector a -> String
 plotPixel xs =
   V.foldl join "" $ V.map pixel colors
@@ -49,7 +48,7 @@ plotPixel xs =
     pixel c = bg256 c ++ " " ++ toNorm
     colors = V.map f' xs
     f' = (+cBase) . round . (*cLen)
-    cLen = fromIntegral $ length grayscale -1
+    cLen = 1 --fromIntegral $ length grayscale -1
     cBase = head grayscale
 
 hZoom :: Int -> [String] -> [String]

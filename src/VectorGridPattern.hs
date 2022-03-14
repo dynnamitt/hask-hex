@@ -10,29 +10,39 @@ import Utils
 import qualified Data.Vector as V
 
 type VGrid a = V.Vector (V.Vector a)
-type Transformation a b = (a,a) -> (b,b) -> VGrid a -> a
+type Transformation a b = (a,a) -> (b,b) -> b -> VGrid a -> a
 
--- works >1
 fracZoom :: RealFrac a => Int -> (Transformation a Int) -> VGrid a -> VGrid a
 fracZoom zoom transFn grid =
-  V.map (\y -> V.map (\x -> transform (y,x)) cellEnum ) rowEnum
+  V.map (\y -> V.map (\x -> transform True (y,x)) cellEnum ) rowEnum
   where
-    transform (y,x) = transFn (yZoom y,xZoom x) (yLen,xLen) grid
+    transform False (y,x) = transFn (yZoom y,xZoom x) (yLen,xLen) zoom grid
+    transform True (y,x) = turbulence transFn (fromIntegral y,fromIntegral x) (yLen,xLen) zoom grid
     rowEnum = V.enumFromTo 0 yLen
     cellEnum = V.enumFromTo 0 xLen
     yLen = V.length grid - 1
     xLen = V.length (V.head grid) - 1
     xZoom = fracDiv $ fromIntegral zoom
-    yZoom = fracDiv $ fromIntegral $ zoom `div` 2
+    yZoom = fracDiv $ fromIntegral $ zoom --`div` 2
     fracDiv z = (/z) . fromIntegral
 
 cubic :: RealFrac a => Transformation a Int
-cubic (y,x) _ grid =
+cubic (y,x) _ _ grid =
   grid V.! floor y V.! floor x
+
+turbulence :: RealFrac a => (Transformation a Int) -> Transformation a Int
+turbulence transFn (y,x) winSize zoom grid =
+  cRange * summed / fZoom
+  where
+    cRange = fromIntegral $ (length grayscale - 1) `div` 2
+    summed = V.sum transVals
+    transVals = V.map (\z -> (z * transFn (y/z,x/z) winSize (round z) grid)) zSteps
+    zSteps = V.unfoldr (\z -> if z < 2 then Nothing else Just (z, z/2 )) fZoom
+    fZoom = fromIntegral zoom
 
 -- https://lodev.org/cgtutor/randomnoise.html#Smooth_Noise_
 smooth :: RealFrac a => Transformation a Int
-smooth (y,x) (h,w) grid =
+smooth (y,x) (h,w) _ grid =
   (fractX         * fractY        * itm y1 x1) +
   ((1 - fractX)   * fractY        * itm y1 x1) +
   (fractX         * (1 - fractY)  * itm y2 x1) +
