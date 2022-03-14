@@ -1,8 +1,9 @@
 module VectorGridPattern(
   twoDimNoise
-  ,fracZoom
+  ,render
   ,cubic
   ,smooth
+  ,Transformation
   ) where
 
 import InfiniteHexGrid
@@ -12,12 +13,12 @@ import qualified Data.Vector as V
 type VGrid a = V.Vector (V.Vector a)
 type Transformation a b = (a,a) -> (b,b) -> b -> VGrid a -> a
 
-fracZoom :: RealFrac a => Int -> (Transformation a Int) -> VGrid a -> VGrid a
-fracZoom zoom transFn grid =
-  V.map (\y -> V.map (\x -> transform True (y,x)) cellEnum ) rowEnum
+render :: RealFrac a => Int -> (Transformation a Int) -> VGrid a -> V.Vector String
+render zoom transFn grid =
+  V.map colorLine $
+    V.map (\y -> V.map (\x -> tr (y,x)) cellEnum ) rowEnum
   where
-    transform False (y,x) = transFn (yZoom y,xZoom x) (yLen,xLen) zoom grid
-    transform True (y,x) = turbulence transFn (fromIntegral y,fromIntegral x) (yLen,xLen) zoom grid
+    tr (y,x) = turbulence transFn (fromIntegral y,fromIntegral x) (yLen,xLen) zoom grid
     rowEnum = V.enumFromTo 0 yLen
     cellEnum = V.enumFromTo 0 xLen
     yLen = V.length grid - 1
@@ -25,6 +26,15 @@ fracZoom zoom transFn grid =
     xZoom = fracDiv $ fromIntegral zoom
     yZoom = fracDiv $ fromIntegral $ zoom --`div` 2
     fracDiv z = (/z) . fromIntegral
+
+colorLine :: RealFrac a => V.Vector a -> String
+colorLine xs =
+  V.foldl joiner "" $ V.map pixel colors
+  where
+    joiner acc x = acc <> x
+    pixel c = bg256 c ++ " " ++ toNorm
+    colors = V.map ((+cBase) . round) xs
+    cBase = head grayscale
 
 cubic :: RealFrac a => Transformation a Int
 cubic (y,x) _ _ grid =

@@ -13,56 +13,28 @@ import qualified Data.Vector as V
 import System.Environment
 import qualified System.Console.Terminal.Size as TS
 
+
 main :: IO ()
 main = do
-  zoom <- parseArgs
   win <- TS.size
-  plotGrid ( fromJust win ) zoom
+  args <- getArgs
+  let (zoom, fn) = parseArgs args
+  plotGrid ( fromJust win ) zoom fn
 
 -- args
-parseArgs :: IO Int
-parseArgs = do
-  args <- getArgs
-  if null args
-    then return 2
-    else return $ read . head $ args
-
+parseArgs :: RealFrac a => [String] -> (Int, (Transformation a Int))
+parseArgs [] = (2,smooth)
+parseArgs (x:xs)
+  | xs == [] = (read x,smooth)
+  | otherwise = (read x,cubic)
 
 hi = 9_000 :: Int
 seed = 2_023
 
-plotGrid :: TS.Window Int -> Int -> IO ()
-plotGrid (TS.Window h w) zoom = do
+plotGrid :: RealFrac a => TS.Window Int -> Int -> (Transformation a Int) -> IO ()
+plotGrid (TS.Window h w) zoom transFn = do
   let gen = mkStdGen seed
   let iGrid = initIHexGrid gen (0, hi)
-  let fGrid = twoDimNoise (w,h) (0,0) iGrid
+  let fGrid = twoDimNoise (w,h) (3,3) iGrid
   putStrLn $  "Summary z:" <> show zoom <> ", h:" <> show h <> ", w:" <> show w
-  mapM_ putStrLn $ V.map plotPixel (fracZoom zoom smooth fGrid)
-
-
-plotPixel :: RealFrac a => V.Vector a -> String
-plotPixel xs =
-  V.foldl join "" $ V.map pixel colors
-  where
-    join acc x = acc <> x
-    pixel c = bg256 c ++ " " ++ toNorm
-    colors = V.map f' xs
-    f' = (+cBase) . round . (*cLen)
-    cLen = 1 --fromIntegral $ length grayscale -1
-    cBase = head grayscale
-
-hZoom :: Int -> [String] -> [String]
-hZoom z (x:[]) = replicate (z `div` 2) x
-hZoom z (x:xs) = replicate (z `div` 2) x ++ hZoom z xs
-
-dim :: (Int,Int) -> Int -> (Int,Int)
-dim (w,h) zoom = (w `div` zoom, h `div` (zoom `div` 2))
-
--- drawGrid :: TS.Window Int -> Material -> Int -> Int -> IO ()
--- drawGrid (TS.Window h w) mat seed zoom = do
---   let gen = mkStdGen seed
---   let materialSpan = length mat - 1
---   let (x,y) = (5, 5)
---   let grid = initIHexGrid gen (0, materialSpan)
---   let viewPort = ViewPort (w ,h) (x,y) zoom mat
---   mapM_ putStrLn $ finiteHexGridZ viewPort grid
+  mapM_ putStrLn $ render zoom transFn fGrid
