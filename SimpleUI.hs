@@ -22,16 +22,16 @@ main = do
   plotGrid ( fromJust win ) zoom fn
 
 -- args
-parseArgs :: RealFrac a => [String] -> (Int, (Transformation a Int))
+parseArgs :: RealFrac a => [String] -> (Int, Transformation a Int)
 parseArgs [] = (2,smooth)
 parseArgs (x:xs)
-  | xs == [] = (read x,smooth)
+  | null xs = (read x,smooth)
   | otherwise = (read x,cubic)
 
 hi = 1_000 :: Int
 seed = 2_023
 
-plotGrid :: RealFrac a => TS.Window Int -> Int -> (Transformation a Int) -> IO ()
+plotGrid :: RealFrac a => TS.Window Int -> Int -> Transformation a Int -> IO ()
 plotGrid (TS.Window h w) zoom transFn = do
   let gen = mkStdGen seed
   let iGrid = initIHexGrid gen (0, hi)
