@@ -23,9 +23,6 @@ render zoom transFn grid =
     cellEnum = V.enumFromTo 0 xLen
     yLen = V.length grid - 1
     xLen = V.length (V.head grid) - 1
-    xZoom = fracDiv $ fromIntegral zoom
-    yZoom = fracDiv $ fromIntegral $ zoom --`div` 2
-    fracDiv z = (/z) . fromIntegral
 
 colorLine :: RealFrac a => V.Vector a -> String
 colorLine xs =
