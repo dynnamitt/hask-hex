@@ -44,7 +44,7 @@ turbulence transFn (y,x) winSize zoom grid =
 smooth :: RealFrac a => Transformation a Int
 smooth (y,x) (h,w) _ grid =
   (fractX         * fractY        * itm y1 x1) +
-  ((1 - fractX)   * fractY        * itm y1 x1) +
+  ((1 - fractX)   * fractY        * itm y1 x2) +
   (fractX         * (1 - fractY)  * itm y2 x1) +
   ((1 - fractX)   * (1 - fractY)  * itm y2 x2)
   where
