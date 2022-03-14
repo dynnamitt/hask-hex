@@ -34,7 +34,7 @@ colorLine xs =
     joiner acc x = acc <> x
     pixel c = bg256 c ++ " " ++ toNorm
     colors = V.map ((+cBase) . round) xs
-    cBase = head grayscale
+    cBase = head rgb
 
 cubic :: RealFrac a => Transformation a Int
 cubic (y,x) _ _ grid =

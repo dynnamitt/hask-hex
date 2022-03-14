@@ -3,6 +3,7 @@ module Utils (
     ,frac
     ,getRGB
     ,grayscale
+    ,rgb
     ,std
     ,bright
     ,fg16

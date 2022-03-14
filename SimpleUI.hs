@@ -28,7 +28,7 @@ parseArgs (x:xs)
   | xs == [] = (read x,smooth)
   | otherwise = (read x,cubic)
 
-hi = 9_000 :: Int
+hi = 1_000 :: Int
 seed = 2_023
 
 plotGrid :: RealFrac a => TS.Window Int -> Int -> (Transformation a Int) -> IO ()
