@@ -39,9 +39,9 @@ executable hask-hex-simplex
   build-depends:       base,
                        hask-hex,
                        random,
-                       terminal-size,
                        containers,
-                       vector
+                       vector,
+                       ansi-terminal
   default-language:    Haskell2010
 
 
