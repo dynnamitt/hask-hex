@@ -41,7 +41,8 @@ executable hask-hex-simplex
                        random,
                        containers,
                        vector,
-                       ansi-terminal
+                       ansi-terminal,
+                       terminal-size
   default-language:    Haskell2010
 
 
